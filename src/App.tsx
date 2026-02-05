@@ -86,8 +86,8 @@ const INITIAL_UPGRADES: Upgrade[] = [
     name: "Café Frio",
     description: "+1 lágrima por clique",
     emoji: "🥶",
-    baseCost: 50,
-    costMultiplier: 1.15,
+    baseCost: 10,
+    costMultiplier: 1.5,
     effect: "clickPower",
     effectValue: 1,
     owned: 0,
@@ -95,56 +95,56 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "alarm",
     name: "Insônia",
-    description: "+0.1 lágrimas/segundo",
-    emoji: "😵",
-    baseCost: 200,
-    costMultiplier: 1.18,
-    effect: "autoSuns",
-    effectValue: 0.1,
-    owned: 0,
-  },
-  {
-    id: "breakfast",
-    name: "Pão Mofado",
-    description: "+3 lágrimas por clique",
-    emoji: "🍞",
-    baseCost: 1000,
-    costMultiplier: 1.15,
-    effect: "clickPower",
-    effectValue: 3,
-    owned: 0,
-  },
-  {
-    id: "music",
-    name: "Playlist Triste",
     description: "+0.5 lágrimas/segundo",
-    emoji: "🎻",
-    baseCost: 5000,
-    costMultiplier: 1.2,
+    emoji: "😵",
+    baseCost: 50,
+    costMultiplier: 1.6,
     effect: "autoSuns",
     effectValue: 0.5,
     owned: 0,
   },
   {
+    id: "breakfast",
+    name: "Pão Mofado",
+    description: "+2 lágrimas por clique",
+    emoji: "🍞",
+    baseCost: 100,
+    costMultiplier: 1.5,
+    effect: "clickPower",
+    effectValue: 2,
+    owned: 0,
+  },
+  {
+    id: "music",
+    name: "Playlist Triste",
+    description: "+2 lágrimas/segundo",
+    emoji: "🎻",
+    baseCost: 250,
+    costMultiplier: 1.7,
+    effect: "autoSuns",
+    effectValue: 2,
+    owned: 0,
+  },
+  {
     id: "pet",
     name: "Gato Preto",
-    description: "+10 lágrimas por clique",
+    description: "+5 lágrimas por clique",
     emoji: "🐈‍⬛",
-    baseCost: 25000,
-    costMultiplier: 1.15,
+    baseCost: 500,
+    costMultiplier: 1.6,
     effect: "clickPower",
-    effectValue: 10,
+    effectValue: 5,
     owned: 0,
   },
   {
     id: "darkness",
     name: "Escuridão",
-    description: "+2 lágrimas/segundo",
+    description: "+10 lágrimas/segundo",
     emoji: "🌑",
-    baseCost: 100000,
-    costMultiplier: 1.22,
+    baseCost: 1000,
+    costMultiplier: 1.8,
     effect: "autoSuns",
-    effectValue: 2,
+    effectValue: 10,
     owned: 0,
   },
   {
@@ -152,7 +152,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
     name: "O Vazio Eterno",
     description: "...",
     emoji: "💀",
-    baseCost: 1000000000000,
+    baseCost: 1000000000,
     costMultiplier: 1,
     effect: "secret",
     effectValue: 0,
@@ -200,12 +200,12 @@ function App() {
   // Ref para rastrear último tempo de save (para cálculo offline)
   const lastSaveTimeRef = useRef<number>(savedGame?.lastSaveTime ?? Date.now());
 
-  // Calcular XP necessário para o próximo nível (escala lentamente)
-  const xpForNextLevel = Math.floor(25 + level * 5 + Math.pow(level, 1.5));
+  // Calcular XP necessário para o próximo nível (10 + level)
+  const xpForNextLevel = 10 + level;
 
-  // Calcular recompensa de sóis ao subir de nível (linear, pequeno bônus)
+  // Calcular recompensa de sóis ao subir de nível (exponencial)
   const getLevelUpReward = (lvl: number): number => {
-    return Math.floor(5 + lvl * 2);
+    return Math.floor(10 * Math.pow(1.5, lvl));
   };
 
   // Calcular stats baseado nos upgrades
@@ -509,7 +509,6 @@ function App() {
         upgrades={upgrades}
         windowWidth={windowSize.width}
         windowHeight={windowSize.height}
-        visualStage={visualStage}
       />
 
       {/* Floating emojis (só aparecem após nível 2) */}
@@ -543,7 +542,6 @@ function App() {
           sunsPerSecond={sunsPerSecond}
           sunsPerClick={sunsPerClick}
           level={level}
-          visualStage={visualStage}
         />
 
         {/* Título principal - mais compacto */}
@@ -692,7 +690,6 @@ function App() {
             upgrades={upgrades}
             suns={suns}
             onBuyUpgrade={handleBuyUpgrade}
-            visualStage={visualStage}
           />
         </div>
 
