@@ -13,7 +13,8 @@ export interface PrestigeUpgrade {
     | "clickMultiplier"
     | "passiveMultiplier"
     | "xpMultiplier"
-    | "offlineMultiplier";
+    | "offlineMultiplier"
+    | "startBonus";
   effectValue: number;
   owned: number;
   maxOwned?: number;
@@ -61,6 +62,11 @@ function PrestigeShop({
   };
 
   const getMultiplierDisplay = (upgrade: PrestigeUpgrade): string => {
+    if (upgrade.effect === "startBonus") {
+      const current = upgrade.effectValue * upgrade.owned;
+      const next = upgrade.effectValue * (upgrade.owned + 1);
+      return `+${formatNumber(current)} → +${formatNumber(next)} 🌙`;
+    }
     const current = 1 + upgrade.effectValue * upgrade.owned;
     const next = 1 + upgrade.effectValue * (upgrade.owned + 1);
     return `${current.toFixed(1)}x → ${next.toFixed(1)}x`;
@@ -113,7 +119,7 @@ function PrestigeShop({
           </motion.button>
         ) : (
           <div className="text-xs sm:text-sm text-right text-purple-300 bg-purple-900/40 px-3 py-2 rounded-lg">
-            <p className="font-semibold">Mínimo: 1M luas</p>
+            <p className="font-semibold">Mínimo: 100K luas</p>
             <p className="text-purple-400">para prestigiar</p>
           </div>
         )}

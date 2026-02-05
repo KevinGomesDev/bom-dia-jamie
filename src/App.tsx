@@ -14,7 +14,7 @@ import UpgradeElements from "./components/UpgradeElements";
 const GAME_SECRET = import.meta.env.VITE_GAME_SECRET || "fallback_secret_key";
 
 // Versão do save - saves anteriores a esta versão serão resetados
-const SAVE_VERSION = 3; // Atualizado para incluir prestígio
+const SAVE_VERSION = 4; // Atualizado para novo balanceamento
 const MIN_SAVE_DATE = new Date("2026-02-05T00:00:00").getTime();
 
 // Interface para o estado salvo
@@ -118,8 +118,8 @@ const INITIAL_UPGRADES: Upgrade[] = [
     name: "Café Frio",
     description: "+1 lua por clique",
     emoji: "🥶",
-    baseCost: 15,
-    costMultiplier: 1.15,
+    baseCost: 10,
+    costMultiplier: 1.12,
     effect: "clickPower",
     effectValue: 1,
     owned: 0,
@@ -127,64 +127,86 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "alarm",
     name: "Insônia",
-    description: "+0.1 luas/segundo",
-    emoji: "😵",
-    baseCost: 100,
-    costMultiplier: 1.15,
-    effect: "autoSuns",
-    effectValue: 0.1,
-    owned: 0,
-  },
-  {
-    id: "breakfast",
-    name: "Pão Mofado",
-    description: "+3 luas por clique",
-    emoji: "🍞",
-    baseCost: 500,
-    costMultiplier: 1.18,
-    effect: "clickPower",
-    effectValue: 3,
-    owned: 0,
-  },
-  {
-    id: "music",
-    name: "Playlist Triste",
     description: "+0.5 luas/segundo",
-    emoji: "🎻",
-    baseCost: 2500,
-    costMultiplier: 1.18,
+    emoji: "😵",
+    baseCost: 50,
+    costMultiplier: 1.12,
     effect: "autoSuns",
     effectValue: 0.5,
     owned: 0,
   },
   {
+    id: "breakfast",
+    name: "Pão Mofado",
+    description: "+5 luas por clique",
+    emoji: "🍞",
+    baseCost: 200,
+    costMultiplier: 1.14,
+    effect: "clickPower",
+    effectValue: 5,
+    owned: 0,
+  },
+  {
+    id: "music",
+    name: "Playlist Triste",
+    description: "+3 luas/segundo",
+    emoji: "🎻",
+    baseCost: 1000,
+    costMultiplier: 1.14,
+    effect: "autoSuns",
+    effectValue: 3,
+    owned: 0,
+  },
+  {
     id: "pet",
     name: "Gato Preto",
-    description: "+10 luas por clique",
+    description: "+25 luas por clique",
     emoji: "🐈‍⬛",
-    baseCost: 15000,
-    costMultiplier: 1.2,
+    baseCost: 5000,
+    costMultiplier: 1.15,
     effect: "clickPower",
-    effectValue: 10,
+    effectValue: 25,
     owned: 0,
   },
   {
     id: "darkness",
     name: "Escuridão",
-    description: "+2 luas/segundo",
+    description: "+15 luas/segundo",
     emoji: "🌑",
-    baseCost: 100000,
-    costMultiplier: 1.2,
+    baseCost: 25000,
+    costMultiplier: 1.15,
     effect: "autoSuns",
-    effectValue: 2,
+    effectValue: 15,
+    owned: 0,
+  },
+  {
+    id: "nightmare",
+    name: "Pesadelo Eterno",
+    description: "+100 luas por clique",
+    emoji: "👁️",
+    baseCost: 150000,
+    costMultiplier: 1.12,
+    effect: "clickPower",
+    effectValue: 100,
+    owned: 0,
+  },
+  {
+    id: "abyss",
+    name: "Abraço do Abismo",
+    description: "+80 luas/segundo",
+    emoji: "🕳️",
+    baseCost: 500000,
+    costMultiplier: 1.12,
+    effect: "autoSuns",
+    effectValue: 80,
     owned: 0,
   },
   {
     id: "secret",
     name: "O Vazio Eterno",
-    description: "...",
+    description: "Algo terrível acontece...",
     emoji: "💀",
-    baseCost: 1000000000000,
+    baseCost: 10000000,
     costMultiplier: 1,
     effect: "secret",
     effectValue: 0,
@@ -202,7 +224,7 @@ const INITIAL_PRESTIGE_UPGRADES: PrestigeUpgrade[] = [
     emoji: "👆",
     description: "Multiplicador de clique +0.5x",
     baseCost: 1,
-    costMultiplier: 2,
+    costMultiplier: 1.8,
     effect: "clickMultiplier",
     effectValue: 0.5,
     owned: 0,
@@ -212,8 +234,8 @@ const INITIAL_PRESTIGE_UPGRADES: PrestigeUpgrade[] = [
     name: "Sussurros Noturnos",
     emoji: "🌙",
     description: "Multiplicador passivo +0.5x",
-    baseCost: 2,
-    costMultiplier: 2,
+    baseCost: 1,
+    costMultiplier: 1.8,
     effect: "passiveMultiplier",
     effectValue: 0.5,
     owned: 0,
@@ -223,8 +245,8 @@ const INITIAL_PRESTIGE_UPGRADES: PrestigeUpgrade[] = [
     name: "Garra do Abismo",
     emoji: "🦇",
     description: "Multiplicador de clique +1.0x",
-    baseCost: 5,
-    costMultiplier: 2.5,
+    baseCost: 3,
+    costMultiplier: 2,
     effect: "clickMultiplier",
     effectValue: 1.0,
     owned: 0,
@@ -234,8 +256,8 @@ const INITIAL_PRESTIGE_UPGRADES: PrestigeUpgrade[] = [
     name: "Eco da Escuridão",
     emoji: "🕯️",
     description: "Multiplicador passivo +1.0x",
-    baseCost: 8,
-    costMultiplier: 2.5,
+    baseCost: 3,
+    costMultiplier: 2,
     effect: "passiveMultiplier",
     effectValue: 1.0,
     owned: 0,
@@ -245,43 +267,44 @@ const INITIAL_PRESTIGE_UPGRADES: PrestigeUpgrade[] = [
     name: "Sabedoria Antiga",
     emoji: "📜",
     description: "Multiplicador de XP +0.5x",
-    baseCost: 10,
-    costMultiplier: 3,
+    baseCost: 5,
+    costMultiplier: 2.5,
     effect: "xpMultiplier",
     effectValue: 0.5,
     owned: 0,
   },
   {
-    id: "prestige_offline_1",
-    name: "Sonhos Lucrativos",
-    emoji: "😴",
-    description: "Multiplicador offline +0.5x",
-    baseCost: 15,
+    id: "prestige_start_1",
+    name: "Herança Sombria",
+    emoji: "🎁",
+    description: "Começa com +500 luas após reset",
+    baseCost: 2,
     costMultiplier: 3,
-    effect: "offlineMultiplier",
-    effectValue: 0.5,
+    effect: "startBonus",
+    effectValue: 500,
     owned: 0,
+    maxOwned: 5,
   },
   {
     id: "prestige_click_3",
     name: "Fúria do Vazio",
     emoji: "💀",
-    description: "Multiplicador de clique +2.5x",
-    baseCost: 25,
-    costMultiplier: 3,
+    description: "Multiplicador de clique +2.0x",
+    baseCost: 10,
+    costMultiplier: 2.5,
     effect: "clickMultiplier",
-    effectValue: 2.5,
+    effectValue: 2.0,
     owned: 0,
   },
   {
     id: "prestige_passive_3",
     name: "Poder Eterno",
     emoji: "🔮",
-    description: "Multiplicador passivo +2.5x",
-    baseCost: 40,
-    costMultiplier: 3,
+    description: "Multiplicador passivo +2.0x",
+    baseCost: 10,
+    costMultiplier: 2.5,
     effect: "passiveMultiplier",
-    effectValue: 2.5,
+    effectValue: 2.0,
     owned: 0,
   },
 ];
@@ -348,10 +371,10 @@ function App() {
   // Nível 1: 15, Nível 5: ~30, Nível 10: ~60, Nível 20: ~239
   const xpForNextLevel = Math.floor(15 * Math.pow(1.15, level));
 
-  // Calcular recompensa de sóis ao subir de nível (linear e modesta)
-  // Níveis iniciais dão pouco, depois cresce devagar
+  // Calcular recompensa de sóis ao subir de nível (escala melhor)
+  // Níveis iniciais dão pouco, depois cresce mais significativamente
   const getLevelUpReward = (lvl: number): number => {
-    return Math.floor(5 + lvl * 3);
+    return Math.floor(10 + lvl * 5 + Math.pow(lvl, 1.5));
   };
 
   // Calcular multiplicadores de prestígio
@@ -386,8 +409,8 @@ function App() {
     .reduce((acc, u) => acc + u.effectValue * u.owned, 0);
   const sunsPerSecond = basePassive * passiveMultiplier;
 
-  // Calcular potencial de prestígio (sqrt de suns / 1M)
-  const potentialPrestigeGain = Math.floor(Math.sqrt(suns / 1000000));
+  // Calcular potencial de prestígio (sqrt de suns / 100K - mais acessível)
+  const potentialPrestigeGain = Math.floor(Math.sqrt(suns / 100000));
 
   // Calcular total de upgrades comprados
   const totalUpgrades = upgrades.reduce((acc, u) => acc + u.owned, 0);
@@ -719,8 +742,13 @@ function App() {
     setPrestigePoints((prev) => prev + potentialPrestigeGain);
     setTotalPrestiges((prev) => prev + 1);
 
-    // Reset do progresso normal
-    setSuns(0);
+    // Calcular bônus inicial de prestígio (Herança Sombria)
+    const startBonus = prestigeUpgrades
+      .filter((u) => u.effect === "startBonus")
+      .reduce((acc, u) => acc + u.effectValue * u.owned, 0);
+
+    // Reset do progresso normal (com bônus inicial se houver)
+    setSuns(startBonus);
     setLevel(0);
     setCurrentXP(0);
     setClickCount(0);
@@ -729,7 +757,7 @@ function App() {
     // Mostrar confetti
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
-  }, [potentialPrestigeGain]);
+  }, [potentialPrestigeGain, prestigeUpgrades]);
 
   // Função para comprar upgrade de prestígio
   const handleBuyPrestigeUpgrade = useCallback(
