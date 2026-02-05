@@ -16,9 +16,17 @@ function GameStats({
   visualStage = "happy",
 }: GameStatsProps) {
   const formatNumber = (num: number, forceDecimals = false): string => {
-    if (num >= 1000000000) return (num / 1000000000).toFixed(1) + "B";
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+    // Tratar casos especiais (Infinity, NaN, negativos)
+    if (!Number.isFinite(num) || Number.isNaN(num)) return "0";
+    if (num < 0) return "0";
+
+    // Números muito grandes
+    if (num >= 1e15) return (num / 1e15).toFixed(1) + "Qa";
+    if (num >= 1e12) return (num / 1e12).toFixed(1) + "T";
+    if (num >= 1e9) return (num / 1e9).toFixed(1) + "B";
+    if (num >= 1e6) return (num / 1e6).toFixed(1) + "M";
+    if (num >= 1e3) return (num / 1e3).toFixed(1) + "K";
+
     if (forceDecimals || num % 1 !== 0) {
       return num.toFixed(1);
     }

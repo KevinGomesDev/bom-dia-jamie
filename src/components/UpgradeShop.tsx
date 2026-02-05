@@ -37,9 +37,13 @@ function UpgradeShop({
   };
 
   const formatNumber = (num: number): string => {
-    if (num >= 1000000000) return (num / 1000000000).toFixed(1) + "B";
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+    if (!Number.isFinite(num) || Number.isNaN(num)) return "0";
+    if (num < 0) return "0";
+    if (num >= 1e15) return (num / 1e15).toFixed(1) + "Qa";
+    if (num >= 1e12) return (num / 1e12).toFixed(1) + "T";
+    if (num >= 1e9) return (num / 1e9).toFixed(1) + "B";
+    if (num >= 1e6) return (num / 1e6).toFixed(1) + "M";
+    if (num >= 1e3) return (num / 1e3).toFixed(1) + "K";
     return Math.floor(num).toString();
   };
 

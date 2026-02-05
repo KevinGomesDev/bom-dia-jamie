@@ -13,7 +13,7 @@ import UpgradeElements from "./components/UpgradeElements";
 const GAME_SECRET = import.meta.env.VITE_GAME_SECRET || "fallback_secret_key";
 
 // Versão do save - saves anteriores a esta versão serão resetados
-const SAVE_VERSION = 2;
+const SAVE_VERSION = 3; // Atualizado para incluir prestígio
 const MIN_SAVE_DATE = new Date("2026-02-05T00:00:00").getTime();
 
 // Interface para o estado salvo
@@ -25,6 +25,11 @@ interface GameState {
   upgrades: { id: string; owned: number }[];
   lastSaveTime: number;
   saveVersion?: number;
+  // Novos campos de prestígio
+  prestigePoints?: number;
+  totalPrestigePoints?: number;
+  prestigeUpgrades?: { id: string; owned: number }[];
+  totalPrestiges?: number;
 }
 
 // Função para criar hash simples do estado do jogo
@@ -37,6 +42,11 @@ const createGameHash = (state: GameState): string => {
     upgrades: state.upgrades,
     lastSaveTime: state.lastSaveTime,
     saveVersion: state.saveVersion || 1,
+    // Incluir prestígio no hash
+    prestigePoints: state.prestigePoints || 0,
+    totalPrestigePoints: state.totalPrestigePoints || 0,
+    prestigeUpgrades: state.prestigeUpgrades || [],
+    totalPrestiges: state.totalPrestiges || 0,
   });
 
   // Hash simples mas eficaz usando a chave secreta
@@ -404,19 +414,29 @@ function App() {
     return () => clearInterval(interval);
   }, [sunsPerSecond]);
 
+  // Contador para IDs únicos de floating texts (evita colisão com Date.now em cliques rápidos)
+  const floatingIdRef = useRef(0);
+
   const handleGreeting = useCallback(
     (e: React.MouseEvent) => {
+      // Ignorar cliques em elementos interativos (botões de upgrade)
+      const target = e.target as HTMLElement;
+      if (target.closest("button") || target.closest("[data-no-click]")) {
+        return;
+      }
+
       // Adicionar sóis
       setSuns((prev) => prev + sunsPerClick);
       setClickCount((prev) => prev + 1);
 
       // Texto flutuante - limitar a 10 textos para performance
-      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      // Usar ID incremental para evitar colisões em cliques rápidos
+      const floatingId = ++floatingIdRef.current;
       const newFloating = {
-        id: Date.now(),
+        id: floatingId,
         value: sunsPerClick,
-        x: e.clientX - rect.left + (Math.random() - 0.5) * 50,
-        y: e.clientY - rect.top,
+        x: e.clientX + (Math.random() - 0.5) * 50,
+        y: e.clientY,
       };
       setFloatingTexts((prev) => {
         const updated = [...prev, newFloating];
@@ -424,53 +444,60 @@ function App() {
         return updated.length > 10 ? updated.slice(-10) : updated;
       });
       setTimeout(() => {
-        setFloatingTexts((prev) => prev.filter((t) => t.id !== newFloating.id));
+        setFloatingTexts((prev) => prev.filter((t) => t.id !== floatingId));
       }, 1000);
 
-      // Sistema de XP e Level Up
-      const newXP = currentXP + 1;
-      if (newXP >= xpForNextLevel) {
-        // Level Up!
-        const reward = getLevelUpReward(level + 1);
-        setLevel((prev) => prev + 1);
-        setCurrentXP(0);
-        setSuns((prev) => prev + reward);
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
+      // Sistema de XP e Level Up - usar função de atualização para garantir consistência
+      setCurrentXP((prevXP) => {
+        const newXP = prevXP + 1;
+        if (newXP >= xpForNextLevel) {
+          // Level Up! - agendar atualizações para evitar conflitos
+          const reward = getLevelUpReward(level + 1);
 
-        // Texto flutuante de level up
-        const levelUpFloating = {
-          id: Date.now() + 1,
-          value: `🎉 Nível ${level + 1}! +${reward} ☀️`,
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top - 30,
-          isLevelUp: true,
-        };
-        setFloatingTexts((prev) => [...prev, levelUpFloating]);
-        setTimeout(() => {
-          setFloatingTexts((prev) =>
-            prev.filter((t) => t.id !== levelUpFloating.id),
-          );
-        }, 2000);
-      } else {
-        setCurrentXP(newXP);
-      }
+          // Usar setTimeout para separar as atualizações de estado
+          setTimeout(() => {
+            setLevel((prev) => prev + 1);
+            setSuns((prev) => prev + reward);
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+          }, 0);
+
+          // Texto flutuante de level up
+          const levelUpId = ++floatingIdRef.current;
+          const levelUpFloating = {
+            id: levelUpId,
+            value: `🎉 Nível ${level + 1}! +${reward} ☀️`,
+            x: e.clientX,
+            y: e.clientY - 30,
+            isLevelUp: true,
+          };
+          setFloatingTexts((prev) => [...prev, levelUpFloating]);
+          setTimeout(() => {
+            setFloatingTexts((prev) => prev.filter((t) => t.id !== levelUpId));
+          }, 2000);
+
+          return 0; // Reset XP
+        }
+        return newXP;
+      });
     },
-    [sunsPerClick, currentXP, xpForNextLevel, level],
+    [sunsPerClick, xpForNextLevel, level],
   );
 
   const handleBuyUpgrade = useCallback(
     (upgradeId: string) => {
-      setUpgrades((prev) => {
-        const upgrade = prev.find((u) => u.id === upgradeId);
-        if (!upgrade) return prev;
+      // Usar setSuns com função para garantir atomicidade em cliques rápidos
+      setSuns((currentSuns) => {
+        // Buscar upgrade atual
+        const upgrade = upgrades.find((u) => u.id === upgradeId);
+        if (!upgrade) return currentSuns;
 
         // Anti-cheat: verificar se já atingiu o máximo permitido
         if (
           upgrade.maxOwned !== undefined &&
           upgrade.owned >= upgrade.maxOwned
         ) {
-          return prev;
+          return currentSuns;
         }
 
         const cost = Math.floor(
@@ -478,27 +505,33 @@ function App() {
         );
 
         // Anti-cheat: verificar se tem sóis suficientes e se o custo é válido
-        if (suns < cost || cost <= 0 || !Number.isFinite(cost)) return prev;
+        if (currentSuns < cost || cost <= 0 || !Number.isFinite(cost)) {
+          return currentSuns;
+        }
 
         // Anti-cheat: garantir que suns não vai negativo
-        const newSuns = suns - cost;
-        if (newSuns < 0 || !Number.isFinite(newSuns)) return prev;
+        const newSuns = currentSuns - cost;
+        if (newSuns < 0 || !Number.isFinite(newSuns)) return currentSuns;
 
-        setSuns(newSuns);
-
-        return prev.map((u) =>
-          u.id === upgradeId ? { ...u, owned: u.owned + 1 } : u,
+        // Atualizar upgrades separadamente (após confirmar que tem saldo)
+        setUpgrades((prev) =>
+          prev.map((u) =>
+            u.id === upgradeId ? { ...u, owned: u.owned + 1 } : u,
+          ),
         );
+
+        return newSuns;
       });
     },
-    [suns],
+    [upgrades],
   );
 
   return (
     <motion.div
-      className={`h-screen relative overflow-hidden flex flex-col transition-all duration-1000 ${bgClass}`}
+      className={`h-screen relative overflow-hidden flex flex-col transition-all duration-1000 ${bgClass} cursor-pointer select-none`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
+      onClick={handleGreeting}
     >
       {/* Mensagem de ganhos offline */}
       <AnimatePresence>
@@ -636,72 +669,61 @@ function App() {
           visualStage={visualStage}
         />
 
-        {/* Botão de saudação principal */}
+        {/* Textos flutuantes de ganho - posição fixa na tela */}
+        <AnimatePresence>
+          {floatingTexts.map((ft) => (
+            <motion.div
+              key={ft.id}
+              initial={{ opacity: 1, y: 0, scale: ft.isLevelUp ? 1.5 : 1 }}
+              animate={{ opacity: 0, y: ft.isLevelUp ? -80 : -50 }}
+              exit={{ opacity: 0 }}
+              className={`fixed pointer-events-none font-bold whitespace-nowrap z-50 ${
+                ft.isLevelUp
+                  ? visualStage === "void" || visualStage === "abyss"
+                    ? "text-red-500 text-xl drop-shadow-lg"
+                    : "text-blue-300 text-xl drop-shadow-lg"
+                  : visualStage === "void" || visualStage === "abyss"
+                    ? "text-red-400 text-lg"
+                    : "text-blue-300 text-lg"
+              }`}
+              style={{
+                left: ft.x,
+                top: ft.y - 40,
+                transform: "translateX(-50%)",
+              }}
+            >
+              {ft.isLevelUp ? ft.value : `+${ft.value} 💧`}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {/* Indicador de clique */}
         <motion.div
-          className="text-center relative"
+          className="text-center"
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
-          {/* Textos flutuantes de ganho */}
-          <AnimatePresence>
-            {floatingTexts.map((ft) => (
-              <motion.div
-                key={ft.id}
-                initial={{ opacity: 1, y: 0, scale: ft.isLevelUp ? 1.5 : 1 }}
-                animate={{ opacity: 0, y: ft.isLevelUp ? -80 : -50 }}
-                exit={{ opacity: 0 }}
-                className={`absolute pointer-events-none font-bold whitespace-nowrap ${
-                  ft.isLevelUp
-                    ? visualStage === "void" || visualStage === "abyss"
-                      ? "text-red-500 text-xl drop-shadow-lg"
-                      : "text-blue-300 text-xl drop-shadow-lg"
-                    : visualStage === "void" || visualStage === "abyss"
-                      ? "text-red-400 text-lg"
-                      : "text-blue-300 text-lg"
-                }`}
-                style={{ left: ft.x, top: ft.y - 40 }}
-              >
-                {ft.isLevelUp ? ft.value : `+${ft.value} 💧`}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          <motion.button
-            onClick={handleGreeting}
-            className={`btn-fun text-white font-bold text-base sm:text-lg md:text-xl px-6 py-3 sm:px-8 sm:py-4 rounded-full shadow-2xl ${
-              visualStage === "happy"
-                ? "bg-gradient-to-r from-yellow-400 to-orange-500"
-                : visualStage === "melancholy"
-                  ? "bg-gradient-to-r from-blue-400 to-blue-600"
-                  : visualStage === "cloudy"
-                    ? "bg-gradient-to-r from-gray-400 to-gray-600"
-                    : visualStage === "storm"
-                      ? "bg-gradient-to-r from-gray-600 to-gray-800"
-                      : visualStage === "abyss"
-                        ? "bg-gradient-to-r from-purple-900 to-gray-900"
-                        : "bg-gradient-to-r from-black to-gray-900 border border-red-900"
+          <p
+            className={`text-sm sm:text-base font-semibold ${
+              visualStage === "void" || visualStage === "abyss"
+                ? "text-red-400/80"
+                : "text-white/80"
             }`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
           >
             {visualStage === "happy"
               ? "☀️"
               : visualStage === "void"
                 ? "💀"
                 : "💧"}
-            {visualStage === "void"
-              ? " Chorar... "
-              : visualStage === "abyss"
-                ? " Sofrer... "
-                : " Dar Bom Dia! "}
+            {" Clique em qualquer lugar! "}
             (+{sunsPerClick})
             {visualStage === "happy"
               ? " ☀️"
               : visualStage === "void"
                 ? " 💀"
                 : " 💧"}
-          </motion.button>
+          </p>
         </motion.div>
 
         {/* Loja de Upgrades */}
