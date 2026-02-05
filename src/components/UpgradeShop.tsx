@@ -114,22 +114,11 @@ function UpgradeShop({
 
   const styles = getStyles();
 
-  // Animação para void - tudo treme
-  const voidAnimation =
-    visualStage === "void"
-      ? {
-          x: [0, -1, 1, -1, 0],
-        }
-      : {};
-
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0, ...voidAnimation }}
-      transition={{
-        duration: visualStage === "void" ? 0.3 : 0.5,
-        repeat: visualStage === "void" ? Infinity : 0,
-      }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5 }}
       className="flex gap-2 justify-center flex-wrap"
     >
       {upgrades.map((upgrade) => {
