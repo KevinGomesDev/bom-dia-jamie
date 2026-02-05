@@ -38,6 +38,29 @@ body {
   animation: gradientShift 15s ease infinite;
 }
 
+/* Nascer do sol - cores quentes no horizonte */
+.sunrise-bg {
+  background: linear-gradient(
+    to top,
+    #ff6b6b 0%,
+    #ffa07a 20%,
+    #ffb347 40%,
+    #87739c 70%,
+    #4a3f6b 100%
+  );
+  background-size: 100% 200%;
+  animation: sunriseShift 8s ease infinite alternate;
+}
+
+@keyframes sunriseShift {
+  0% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
 /* Transição para manhã */
 .morning-bg {
   background: linear-gradient(-45deg, #ff9a56, #ffcd67, #ffa07a, #ffb347);
@@ -64,6 +87,66 @@ body {
   );
   background-size: 400% 400%;
   animation: gradientShift 10s ease infinite;
+}
+
+/* Aurora boreal para níveis muito altos */
+.aurora-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 255, 128, 0.3) 0%,
+    rgba(0, 191, 255, 0.2) 30%,
+    rgba(138, 43, 226, 0.2) 60%,
+    transparent 100%
+  );
+  animation: auroraWave 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes auroraWave {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-10px);
+  }
+}
+
+/* Raios de luz do sol */
+.sun-rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 215, 0, 0.3) 0%,
+    rgba(255, 215, 0, 0.1) 30%,
+    transparent 60%
+  );
+  animation: sunPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sunPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
 }
 
 @keyframes gradientShift {

@@ -225,9 +225,10 @@ function App() {
   // Determinar o estágio visual baseado no progresso
   const visualStage = useMemo(() => {
     const progress = level + Math.floor(totalUpgrades / 2);
-    if (progress >= 15) return "radiant";
-    if (progress >= 10) return "gradient";
-    if (progress >= 5) return "morning";
+    if (progress >= 20) return "radiant";
+    if (progress >= 12) return "gradient";
+    if (progress >= 7) return "morning";
+    if (progress >= 4) return "sunrise";
     if (progress >= 2) return "dawn";
     return "dark";
   }, [level, totalUpgrades]);
@@ -241,6 +242,8 @@ function App() {
         return "gradient-bg";
       case "morning":
         return "morning-bg";
+      case "sunrise":
+        return "sunrise-bg";
       case "dawn":
         return "dawn-bg";
       default:
