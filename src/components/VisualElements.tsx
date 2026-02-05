@@ -52,8 +52,8 @@ function VisualElements({
         <motion.div
           className="absolute top-8 right-8 text-4xl sm:text-5xl pointer-events-none"
           initial={{ opacity: 0, y: -20 }}
-          animate={{ 
-            opacity: isDark ? 0.9 : 0.5, 
+          animate={{
+            opacity: isDark ? 0.9 : 0.5,
             y: 0,
             rotate: isDark ? 0 : 15,
           }}
@@ -68,7 +68,7 @@ function VisualElements({
         <motion.div
           className="absolute bottom-0 left-1/2 -translate-x-1/2 text-6xl sm:text-7xl pointer-events-none"
           initial={{ y: 100, opacity: 0 }}
-          animate={{ 
+          animate={{
             y: [80, 60, 80],
             opacity: 1,
           }}
@@ -106,7 +106,7 @@ function VisualElements({
         <>
           {/* Raios de luz */}
           <div className="sun-rays" />
-          
+
           <motion.div
             className="absolute top-6 right-6 text-5xl sm:text-6xl pointer-events-none"
             animate={{
@@ -120,7 +120,7 @@ function VisualElements({
           >
             🌟
           </motion.div>
-          
+
           {/* Aurora boreal */}
           <div className="aurora-effect" />
         </>
@@ -131,7 +131,8 @@ function VisualElements({
         <motion.div
           className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
           style={{
-            background: "linear-gradient(to top, rgba(255, 107, 107, 0.4), transparent)",
+            background:
+              "linear-gradient(to top, rgba(255, 107, 107, 0.4), transparent)",
           }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -250,11 +251,28 @@ function VisualElements({
               key={`butterfly-${i}`}
               className="absolute text-lg pointer-events-none"
               style={{
-                filter: i === 1 ? "hue-rotate(60deg)" : i === 2 ? "hue-rotate(180deg)" : "none",
+                filter:
+                  i === 1
+                    ? "hue-rotate(60deg)"
+                    : i === 2
+                      ? "hue-rotate(180deg)"
+                      : "none",
               }}
               animate={{
-                x: [100 + i * 80, 150 + i * 80, 100 + i * 80, 50 + i * 80, 100 + i * 80],
-                y: [100 + i * 30, 80 + i * 30, 120 + i * 30, 90 + i * 30, 100 + i * 30],
+                x: [
+                  100 + i * 80,
+                  150 + i * 80,
+                  100 + i * 80,
+                  50 + i * 80,
+                  100 + i * 80,
+                ],
+                y: [
+                  100 + i * 30,
+                  80 + i * 30,
+                  120 + i * 30,
+                  90 + i * 30,
+                  100 + i * 30,
+                ],
               }}
               transition={{
                 duration: 8 + i * 2,
@@ -274,12 +292,12 @@ function VisualElements({
         <motion.div
           className="absolute top-16 left-1/2 -translate-x-1/2 text-6xl sm:text-7xl pointer-events-none"
           initial={{ opacity: 0, scale: 0.5, y: 20 }}
-          animate={{ 
-            opacity: [0.4, 0.6, 0.4], 
+          animate={{
+            opacity: [0.4, 0.6, 0.4],
             scale: 1,
             y: 0,
           }}
-          transition={{ 
+          transition={{
             opacity: { duration: 3, repeat: Infinity },
             scale: { duration: 1 },
             y: { duration: 1 },
@@ -296,7 +314,7 @@ function VisualElements({
             <motion.div
               key={`magic-${i}`}
               className="absolute text-sm pointer-events-none"
-              initial={{ 
+              initial={{
                 x: Math.random() * windowWidth,
                 y: Math.random() * 400 + 100,
                 opacity: 0,
