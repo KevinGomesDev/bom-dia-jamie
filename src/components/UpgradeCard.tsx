@@ -29,7 +29,6 @@ interface UpgradeCardProps {
 interface TooltipPosition {
   x: number;
   y: number;
-  placement: "top" | "bottom";
 }
 
 function UpgradeCard({
@@ -53,11 +52,10 @@ function UpgradeCard({
   const showTooltip = useCallback(() => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const placement = rect.top < 150 ? "bottom" : "top";
+    // Sempre aparecer acima do botão
     setTooltipPos({
       x: rect.left + rect.width / 2,
-      y: placement === "top" ? rect.top - 8 : rect.bottom + 8,
-      placement,
+      y: rect.top,
     });
   }, []);
 
@@ -142,14 +140,13 @@ function UpgradeCard({
       <motion.button
         ref={cardRef}
         onClick={() => canBuy && onClick()}
-        disabled={!canBuy && !isMaxed}
         className={`
           group relative p-2.5 sm:p-3 rounded-xl border-2 transition-all
           min-w-[95px] sm:min-w-[110px] backdrop-blur-sm
           ${getCardStyles()}
-          ${canBuy ? "cursor-pointer" : isMaxed ? "cursor-default" : "cursor-not-allowed opacity-60"}
+          ${canBuy ? "cursor-pointer" : isMaxed ? "cursor-default" : "cursor-not-allowed opacity-70"}
         `}
-        whileHover={canBuy ? { scale: 1.05, y: -2 } : {}}
+        whileHover={canBuy ? { scale: 1.05, y: -2 } : { scale: 1.02 }}
         whileTap={canBuy ? { scale: 0.95 } : {}}
         onMouseEnter={showTooltip}
         onMouseLeave={hideTooltip}
@@ -211,17 +208,19 @@ function UpgradeCard({
       {/* Tooltip usando Portal para renderizar no body */}
       {tooltipPos &&
         createPortal(
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="fixed z-[99999] pointer-events-none"
+          <div
+            className="fixed z-[99999] pointer-events-none flex flex-col items-center"
             style={{
               left: tooltipPos.x,
-              top: tooltipPos.y,
-              transform: `translateX(-50%) translateY(${tooltipPos.placement === "top" ? "-100%" : "0"})`,
+              top: tooltipPos.y - 12,
+              transform: "translate(-50%, -100%)",
             }}
           >
-            <div className="bg-gray-900 border-2 border-gray-600 rounded-xl shadow-2xl px-4 py-3 min-w-[180px] max-w-[260px] text-left">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gray-900 border-2 border-gray-600 rounded-xl shadow-2xl px-4 py-3 min-w-[180px] max-w-[260px] text-left"
+            >
               {/* Nome */}
               <p
                 className={`font-bold text-sm mb-1 ${
@@ -263,18 +262,11 @@ function UpgradeCard({
                     ? "✓ Pode comprar!"
                     : "✗ Recursos insuficientes"}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Seta do tooltip */}
-            <div
-              className={`absolute left-1/2 -translate-x-1/2 w-0 h-0 
-              ${
-                tooltipPos.placement === "top"
-                  ? "top-full border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-900"
-                  : "bottom-full border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-gray-900"
-              }`}
-            />
-          </motion.div>,
+            {/* Seta do tooltip apontando para baixo */}
+            <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-900" />
+          </div>,
           document.body,
         )}
     </>
