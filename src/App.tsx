@@ -410,7 +410,7 @@ function App() {
       setSuns((prev) => prev + sunsPerClick);
       setClickCount((prev) => prev + 1);
 
-      // Texto flutuante
+      // Texto flutuante - limitar a 10 textos para performance
       const rect = (e.target as HTMLElement).getBoundingClientRect();
       const newFloating = {
         id: Date.now(),
@@ -418,7 +418,11 @@ function App() {
         x: e.clientX - rect.left + (Math.random() - 0.5) * 50,
         y: e.clientY - rect.top,
       };
-      setFloatingTexts((prev) => [...prev, newFloating]);
+      setFloatingTexts((prev) => {
+        const updated = [...prev, newFloating];
+        // Manter apenas os 10 textos mais recentes
+        return updated.length > 10 ? updated.slice(-10) : updated;
+      });
       setTimeout(() => {
         setFloatingTexts((prev) => prev.filter((t) => t.id !== newFloating.id));
       }, 1000);
@@ -515,7 +519,7 @@ function App() {
           width={windowSize.width}
           height={windowSize.height}
           recycle={false}
-          numberOfPieces={300}
+          numberOfPieces={150}
           colors={["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"]}
         />
       )}

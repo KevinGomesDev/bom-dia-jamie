@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { memo, useMemo } from "react";
 
 interface VisualElementsProps {
   level: number;
@@ -11,16 +12,28 @@ function VisualElements({
   totalUpgrades,
   windowWidth,
 }: VisualElementsProps) {
-  // Calcular progresso para elementos visuais
-  const progress = level + Math.floor(totalUpgrades / 2);
+  // Calcular progresso para elementos visuais (memoizado)
+  const progress = useMemo(
+    () => level + Math.floor(totalUpgrades / 2),
+    [level, totalUpgrades],
+  );
 
-  // Determinar estágio
-  const isHappy = progress < 2;
-  const isMelancholy = progress >= 2 && progress < 4;
-  const isCloudy = progress >= 4 && progress < 7;
-  const isStorm = progress >= 7 && progress < 12;
-  const isAbyss = progress >= 12 && progress < 20;
-  const isVoid = progress >= 20;
+  // Determinar estágio (memoizado)
+  const stage = useMemo(() => {
+    if (progress >= 20) return "void";
+    if (progress >= 12) return "abyss";
+    if (progress >= 7) return "storm";
+    if (progress >= 4) return "cloudy";
+    if (progress >= 2) return "melancholy";
+    return "happy";
+  }, [progress]);
+
+  const isHappy = stage === "happy";
+  const isMelancholy = stage === "melancholy";
+  const isCloudy = stage === "cloudy";
+  const isStorm = stage === "storm";
+  const isAbyss = stage === "abyss";
+  const isVoid = stage === "void";
 
   return (
     <>
@@ -43,7 +56,7 @@ function VisualElements({
           </motion.div>
 
           {/* Borboletas coloridas */}
-          {[...Array(3)].map((_, i) => (
+          {[...Array(2)].map((_, i) => (
             <motion.div
               key={`butterfly-${i}`}
               className="absolute text-2xl pointer-events-none"
@@ -104,7 +117,7 @@ function VisualElements({
           </motion.div>
 
           {/* Folhas caindo */}
-          {[...Array(5)].map((_, i) => (
+          {[...Array(3)].map((_, i) => (
             <motion.div
               key={`leaf-${i}`}
               className="absolute text-xl pointer-events-none"
@@ -146,7 +159,7 @@ function VisualElements({
           </motion.div>
 
           {/* Gotas de chuva leve */}
-          {[...Array(8)].map((_, i) => (
+          {[...Array(5)].map((_, i) => (
             <motion.div
               key={`drop-${i}`}
               className="absolute text-sm pointer-events-none opacity-60"
@@ -155,9 +168,9 @@ function VisualElements({
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                delay: i * 0.3,
+                delay: i * 0.5,
               }}
-              style={{ left: `${10 + i * 12}%` }}
+              style={{ left: `${10 + i * 18}%` }}
             >
               💧
             </motion.div>
@@ -200,7 +213,7 @@ function VisualElements({
           </motion.div>
 
           {/* Chuva forte */}
-          {[...Array(15)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <motion.div
               key={`rain-${i}`}
               className="absolute text-xs pointer-events-none"
@@ -209,9 +222,9 @@ function VisualElements({
               transition={{
                 duration: 1,
                 repeat: Infinity,
-                delay: i * 0.1,
+                delay: i * 0.15,
               }}
-              style={{ left: `${5 + i * 6}%` }}
+              style={{ left: `${5 + i * 12}%` }}
             >
               💧
             </motion.div>
@@ -246,7 +259,7 @@ function VisualElements({
           </motion.div>
 
           {/* Morcegos voando */}
-          {[...Array(4)].map((_, i) => (
+          {[...Array(2)].map((_, i) => (
             <motion.div
               key={`bat-${i}`}
               className="absolute text-2xl pointer-events-none"
@@ -257,7 +270,7 @@ function VisualElements({
                 repeat: Infinity,
                 delay: i * 2,
               }}
-              style={{ top: `${10 + i * 15}%` }}
+              style={{ top: `${10 + i * 20}%` }}
             >
               🦇
             </motion.div>
@@ -293,11 +306,11 @@ function VisualElements({
           </motion.div>
 
           {/* Velas tremulando */}
-          {[...Array(3)].map((_, i) => (
+          {[...Array(2)].map((_, i) => (
             <motion.div
               key={`candle-${i}`}
               className="absolute bottom-4 text-xl pointer-events-none"
-              style={{ left: `${25 + i * 25}%` }}
+              style={{ left: `${30 + i * 40}%` }}
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 1 + i * 0.3, repeat: Infinity }}
             >
@@ -329,8 +342,8 @@ function VisualElements({
           </motion.div>
 
           {/* Almas sendo sugadas */}
-          {[...Array(8)].map((_, i) => {
-            const angle = (i / 8) * Math.PI * 2;
+          {[...Array(4)].map((_, i) => {
+            const angle = (i / 4) * Math.PI * 2;
             const radius = 150;
             return (
               <motion.div
@@ -349,7 +362,7 @@ function VisualElements({
                 transition={{
                   duration: 3,
                   repeat: Infinity,
-                  delay: i * 0.4,
+                  delay: i * 0.8,
                 }}
               >
                 👻
@@ -358,34 +371,39 @@ function VisualElements({
           })}
 
           {/* Partículas de trevas */}
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={`particle-${i}`}
-              className="absolute w-1 h-1 bg-red-900 rounded-full pointer-events-none"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                opacity: [0, 0.8, 0],
-                scale: [0, 1, 0],
-              }}
-              transition={{
-                duration: 2 + Math.random() * 2,
-                repeat: Infinity,
-                delay: i * 0.2,
-              }}
-            />
-          ))}
+          {[...Array(8)].map((_, i) => {
+            // Usar posições determinísticas baseadas no índice
+            const posX = (i * 137) % 100;
+            const posY = (i * 149) % 100;
+            return (
+              <motion.div
+                key={`particle-${i}`}
+                className="absolute w-1 h-1 bg-red-900 rounded-full pointer-events-none"
+                style={{
+                  left: `${posX}%`,
+                  top: `${posY}%`,
+                }}
+                animate={{
+                  opacity: [0, 0.8, 0],
+                  scale: [0, 1, 0],
+                }}
+                transition={{
+                  duration: 2 + (i % 3),
+                  repeat: Infinity,
+                  delay: i * 0.4,
+                }}
+              />
+            );
+          })}
 
           {/* Olhos na escuridão */}
-          {[...Array(4)].map((_, i) => (
+          {[...Array(2)].map((_, i) => (
             <motion.div
               key={`eyes-${i}`}
               className="absolute text-2xl pointer-events-none"
               style={{
-                left: `${15 + i * 20}%`,
-                top: `${20 + (i % 2) * 50}%`,
+                left: `${20 + i * 60}%`,
+                top: `${30 + (i % 2) * 40}%`,
               }}
               animate={{
                 opacity: [0, 0.6, 0.6, 0],
@@ -393,7 +411,7 @@ function VisualElements({
               transition={{
                 duration: 4,
                 repeat: Infinity,
-                delay: i * 1.5,
+                delay: i * 2,
                 times: [0, 0.1, 0.9, 1],
               }}
             >
@@ -422,4 +440,4 @@ function VisualElements({
   );
 }
 
-export default VisualElements;
+export default memo(VisualElements);

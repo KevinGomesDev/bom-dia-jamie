@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Upgrade } from "./UpgradeShop";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 
 interface UpgradeElementsProps {
   upgrades: Upgrade[];
@@ -20,6 +20,10 @@ const getRandomPosition = (index: number, seed: number) => {
 const getAnimationDuration = (index: number, base: number) => {
   return base + (index % 5) * 0.5;
 };
+
+// Limite máximo de elementos visuais por tipo de upgrade para otimização
+const MAX_VISUAL_ELEMENTS_PER_UPGRADE = 5;
+const MAX_TOTAL_VISUAL_ELEMENTS = 25;
 
 function UpgradeElements({
   upgrades,
@@ -42,9 +46,20 @@ function UpgradeElements({
   // Gerar elementos para cada upgrade
   const elements = useMemo(() => {
     const allElements: JSX.Element[] = [];
+    let totalElements = 0;
 
     upgrades.forEach((upgrade) => {
-      for (let i = 0; i < upgrade.owned; i++) {
+      // Limitar elementos por upgrade e total para otimização de performance
+      const maxForThisUpgrade = Math.min(
+        upgrade.owned,
+        MAX_VISUAL_ELEMENTS_PER_UPGRADE,
+      );
+      for (
+        let i = 0;
+        i < maxForThisUpgrade && totalElements < MAX_TOTAL_VISUAL_ELEMENTS;
+        i++
+      ) {
+        totalElements++;
         const pos = getRandomPosition(i, upgrade.id.charCodeAt(0));
         const duration = getAnimationDuration(i, 3);
         const delay = (i * 0.1) % 2;
@@ -297,14 +312,14 @@ function UpgradeElements({
                   🕳️
                 </motion.div>
 
-                {/* Almas sendo sugadas para o buraco negro */}
-                {Array.from({ length: 12 }).map((_, idx) => (
+                {/* Almas sendo sugadas para o buraco negro - reduzido para 6 */}
+                {Array.from({ length: 6 }).map((_, idx) => (
                   <motion.div
                     key={`secret-particle-${idx}`}
                     className="absolute text-2xl sm:text-3xl"
                     initial={{
-                      x: Math.cos((idx * Math.PI * 2) / 12) * 200,
-                      y: Math.sin((idx * Math.PI * 2) / 12) * 200,
+                      x: Math.cos((idx * Math.PI * 2) / 6) * 200,
+                      y: Math.sin((idx * Math.PI * 2) / 6) * 200,
                       scale: 1,
                       opacity: 1,
                     }}
@@ -318,26 +333,11 @@ function UpgradeElements({
                     transition={{
                       duration: 4,
                       repeat: Infinity,
-                      delay: idx * 0.3,
+                      delay: idx * 0.6,
                       ease: "easeIn",
                     }}
                   >
-                    {
-                      [
-                        "👻",
-                        "💀",
-                        "🖤",
-                        "😵",
-                        "👁️",
-                        "☠️",
-                        "🦴",
-                        "💔",
-                        "😱",
-                        "🕯️",
-                        "⚰️",
-                        "🪦",
-                      ][idx]
-                    }
+                    {["👻", "💀", "🖤", "😵", "👁️", "☠️"][idx]}
                   </motion.div>
                 ))}
 
@@ -373,4 +373,4 @@ function UpgradeElements({
   return <>{elements}</>;
 }
 
-export default UpgradeElements;
+export default memo(UpgradeElements);

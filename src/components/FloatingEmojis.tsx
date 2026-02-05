@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 
 interface FloatingEmojisProps {
   visualStage?: "happy" | "melancholy" | "cloudy" | "storm" | "abyss" | "void";
@@ -31,14 +31,14 @@ const ANIMATION_CONFIG = {
   void: { direction: "inward" as const, speed: 0.3, wobble: 5 },
 };
 
-// Quantidade de partículas por estágio
+// Quantidade de partículas por estágio - REDUZIDO para performance
 const PARTICLE_COUNT = {
-  happy: 15,
-  melancholy: 15,
-  cloudy: 15,
-  storm: 10,
-  abyss: 8,
-  void: 5,
+  happy: 8,
+  melancholy: 8,
+  cloudy: 6,
+  storm: 5,
+  abyss: 4,
+  void: 3,
 };
 
 // Gera partículas com posições determinísticas
@@ -165,4 +165,4 @@ function FloatingEmojis({ visualStage = "happy" }: FloatingEmojisProps) {
   );
 }
 
-export default FloatingEmojis;
+export default memo(FloatingEmojis);
