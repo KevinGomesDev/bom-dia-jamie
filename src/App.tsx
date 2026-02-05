@@ -105,7 +105,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "coffee",
     name: "Café Frio",
-    description: "+1 lágrima por clique",
+    description: "+1 lua por clique",
     emoji: "🥶",
     baseCost: 15,
     costMultiplier: 1.15,
@@ -116,7 +116,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "alarm",
     name: "Insônia",
-    description: "+0.1 lágrimas/segundo",
+    description: "+0.1 luas/segundo",
     emoji: "😵",
     baseCost: 100,
     costMultiplier: 1.15,
@@ -127,7 +127,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "breakfast",
     name: "Pão Mofado",
-    description: "+3 lágrimas por clique",
+    description: "+3 luas por clique",
     emoji: "🍞",
     baseCost: 500,
     costMultiplier: 1.18,
@@ -138,7 +138,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "music",
     name: "Playlist Triste",
-    description: "+0.5 lágrimas/segundo",
+    description: "+0.5 luas/segundo",
     emoji: "🎻",
     baseCost: 2500,
     costMultiplier: 1.18,
@@ -149,7 +149,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "pet",
     name: "Gato Preto",
-    description: "+10 lágrimas por clique",
+    description: "+10 luas por clique",
     emoji: "🐈‍⬛",
     baseCost: 15000,
     costMultiplier: 1.2,
@@ -160,7 +160,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "darkness",
     name: "Escuridão",
-    description: "+2 lágrimas/segundo",
+    description: "+2 luas/segundo",
     emoji: "🌑",
     baseCost: 100000,
     costMultiplier: 1.2,
@@ -302,7 +302,7 @@ function App() {
           return Math.floor(num).toString();
         };
         setOfflineEarningsMessage(
-          `☀️ Bem-vinda de volta! +${formatOffline(offlineEarnings)} sóis`,
+          `🌙 Bem-vinda de volta! +${formatOffline(offlineEarnings)} luas`,
         );
         setTimeout(() => setOfflineEarningsMessage(null), 5000);
       }

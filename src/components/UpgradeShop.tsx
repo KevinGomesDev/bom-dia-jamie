@@ -53,7 +53,7 @@ function UpgradeShop({
           maxed: "bg-green-500/20 border-green-400",
           text: "text-white",
           priceText: "text-yellow-300",
-          priceIcon: "☀️",
+          priceIcon: "🌙",
         };
       case "melancholy":
         return {
@@ -107,7 +107,7 @@ function UpgradeShop({
           maxed: "bg-green-500/20 border-green-400",
           text: "text-white",
           priceText: "text-yellow-300",
-          priceIcon: "☀️",
+          priceIcon: "🌙",
         };
     }
   };

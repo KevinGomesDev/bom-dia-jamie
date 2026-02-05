@@ -35,8 +35,8 @@ function GameStats({
             "bg-gradient-to-r from-yellow-400/50 to-orange-400/50 border-yellow-200/30",
           text: "text-white",
           subText: "text-yellow-200",
-          icon: "☀️",
-          currencyName: "Alegrias",
+          icon: "🌙",
+          currencyName: "Luas",
           levelIcon: "⭐",
         };
       case "melancholy":
@@ -101,8 +101,8 @@ function GameStats({
             "bg-gradient-to-r from-yellow-400/50 to-orange-400/50 border-yellow-200/30",
           text: "text-white",
           subText: "text-yellow-200",
-          icon: "☀️",
-          currencyName: "Alegrias",
+          icon: "🌙",
+          currencyName: "Luas",
           levelIcon: "⭐",
         };
     }
