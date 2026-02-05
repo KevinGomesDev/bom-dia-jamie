@@ -12,6 +12,10 @@ import UpgradeElements from "./components/UpgradeElements";
 // Chave secreta para hash (do .env)
 const GAME_SECRET = import.meta.env.VITE_GAME_SECRET || "fallback_secret_key";
 
+// Versão do save - saves anteriores a esta versão serão resetados
+const SAVE_VERSION = 2;
+const MIN_SAVE_DATE = new Date("2026-02-05T00:00:00").getTime();
+
 // Interface para o estado salvo
 interface GameState {
   suns: number;
@@ -20,6 +24,7 @@ interface GameState {
   clickCount: number;
   upgrades: { id: string; owned: number }[];
   lastSaveTime: number;
+  saveVersion?: number;
 }
 
 // Função para criar hash simples do estado do jogo
@@ -31,6 +36,7 @@ const createGameHash = (state: GameState): string => {
     clickCount: state.clickCount,
     upgrades: state.upgrades,
     lastSaveTime: state.lastSaveTime,
+    saveVersion: state.saveVersion || 1,
   });
 
   // Hash simples mas eficaz usando a chave secreta
@@ -51,8 +57,9 @@ const verifyGameHash = (state: GameState, hash: string): boolean => {
 
 // Função para salvar o jogo
 const saveGame = (state: GameState): void => {
-  const hash = createGameHash(state);
-  localStorage.setItem("bomDiaJamie_save", JSON.stringify(state));
+  const stateWithVersion = { ...state, saveVersion: SAVE_VERSION };
+  const hash = createGameHash(stateWithVersion);
+  localStorage.setItem("bomDiaJamie_save", JSON.stringify(stateWithVersion));
   localStorage.setItem("bomDiaJamie_hash", hash);
 };
 
@@ -65,6 +72,20 @@ const loadGame = (): GameState | null => {
     if (!savedData || !savedHash) return null;
 
     const state: GameState = JSON.parse(savedData);
+
+    // Verificar se o save é muito antigo (antes da atualização do tema sombrio)
+    if (
+      state.lastSaveTime < MIN_SAVE_DATE ||
+      !state.saveVersion ||
+      state.saveVersion < SAVE_VERSION
+    ) {
+      console.warn(
+        "🌑 Save antigo detectado! O jogo foi atualizado. Iniciando novo jogo...",
+      );
+      localStorage.removeItem("bomDiaJamie_save");
+      localStorage.removeItem("bomDiaJamie_hash");
+      return null;
+    }
 
     // Verificar hash anti-trapaça
     if (!verifyGameHash(state, savedHash)) {
@@ -86,8 +107,8 @@ const INITIAL_UPGRADES: Upgrade[] = [
     name: "Café Frio",
     description: "+1 lágrima por clique",
     emoji: "🥶",
-    baseCost: 10,
-    costMultiplier: 1.5,
+    baseCost: 15,
+    costMultiplier: 1.15,
     effect: "clickPower",
     effectValue: 1,
     owned: 0,
@@ -95,56 +116,56 @@ const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "alarm",
     name: "Insônia",
-    description: "+0.5 lágrimas/segundo",
+    description: "+0.1 lágrimas/segundo",
     emoji: "😵",
-    baseCost: 50,
-    costMultiplier: 1.6,
+    baseCost: 100,
+    costMultiplier: 1.15,
     effect: "autoSuns",
-    effectValue: 0.5,
+    effectValue: 0.1,
     owned: 0,
   },
   {
     id: "breakfast",
     name: "Pão Mofado",
-    description: "+2 lágrimas por clique",
+    description: "+3 lágrimas por clique",
     emoji: "🍞",
-    baseCost: 100,
-    costMultiplier: 1.5,
+    baseCost: 500,
+    costMultiplier: 1.18,
     effect: "clickPower",
-    effectValue: 2,
+    effectValue: 3,
     owned: 0,
   },
   {
     id: "music",
     name: "Playlist Triste",
-    description: "+2 lágrimas/segundo",
+    description: "+0.5 lágrimas/segundo",
     emoji: "🎻",
-    baseCost: 250,
-    costMultiplier: 1.7,
+    baseCost: 2500,
+    costMultiplier: 1.18,
     effect: "autoSuns",
-    effectValue: 2,
+    effectValue: 0.5,
     owned: 0,
   },
   {
     id: "pet",
     name: "Gato Preto",
-    description: "+5 lágrimas por clique",
+    description: "+10 lágrimas por clique",
     emoji: "🐈‍⬛",
-    baseCost: 500,
-    costMultiplier: 1.6,
+    baseCost: 15000,
+    costMultiplier: 1.2,
     effect: "clickPower",
-    effectValue: 5,
+    effectValue: 10,
     owned: 0,
   },
   {
     id: "darkness",
     name: "Escuridão",
-    description: "+10 lágrimas/segundo",
+    description: "+2 lágrimas/segundo",
     emoji: "🌑",
-    baseCost: 1000,
-    costMultiplier: 1.8,
+    baseCost: 100000,
+    costMultiplier: 1.2,
     effect: "autoSuns",
-    effectValue: 10,
+    effectValue: 2,
     owned: 0,
   },
   {
@@ -152,7 +173,7 @@ const INITIAL_UPGRADES: Upgrade[] = [
     name: "O Vazio Eterno",
     description: "...",
     emoji: "💀",
-    baseCost: 1000000000,
+    baseCost: 1000000000000,
     costMultiplier: 1,
     effect: "secret",
     effectValue: 0,
@@ -200,12 +221,14 @@ function App() {
   // Ref para rastrear último tempo de save (para cálculo offline)
   const lastSaveTimeRef = useRef<number>(savedGame?.lastSaveTime ?? Date.now());
 
-  // Calcular XP necessário para o próximo nível (10 + level)
-  const xpForNextLevel = 10 + level;
+  // Calcular XP necessário para o próximo nível (crescimento exponencial)
+  // Nível 1: 15, Nível 5: ~30, Nível 10: ~60, Nível 20: ~239
+  const xpForNextLevel = Math.floor(15 * Math.pow(1.15, level));
 
-  // Calcular recompensa de sóis ao subir de nível (exponencial)
+  // Calcular recompensa de sóis ao subir de nível (linear e modesta)
+  // Níveis iniciais dão pouco, depois cresce devagar
   const getLevelUpReward = (lvl: number): number => {
-    return Math.floor(10 * Math.pow(1.5, lvl));
+    return Math.floor(5 + lvl * 3);
   };
 
   // Calcular stats baseado nos upgrades
@@ -509,6 +532,7 @@ function App() {
         upgrades={upgrades}
         windowWidth={windowSize.width}
         windowHeight={windowSize.height}
+        visualStage={visualStage}
       />
 
       {/* Floating emojis (só aparecem após nível 2) */}
@@ -542,6 +566,7 @@ function App() {
           sunsPerSecond={sunsPerSecond}
           sunsPerClick={sunsPerClick}
           level={level}
+          visualStage={visualStage}
         />
 
         {/* Título principal - mais compacto */}
@@ -690,6 +715,7 @@ function App() {
             upgrades={upgrades}
             suns={suns}
             onBuyUpgrade={handleBuyUpgrade}
+            visualStage={visualStage}
           />
         </div>
 
