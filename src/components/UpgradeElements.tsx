@@ -36,6 +36,9 @@ function UpgradeElements({
           ? 0.7
           : 1;
 
+  // Criar uma string estável das quantidades de upgrades para dependência do useMemo
+  const upgradesKey = upgrades.map((u) => `${u.id}:${u.owned}`).join(",");
+
   // Gerar elementos para cada upgrade
   const elements = useMemo(() => {
     const allElements: JSX.Element[] = [];
@@ -364,7 +367,8 @@ function UpgradeElements({
     });
 
     return allElements;
-  }, [upgrades, windowWidth, baseOpacity, visualStage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [upgradesKey, windowWidth, baseOpacity, visualStage]);
 
   return <>{elements}</>;
 }

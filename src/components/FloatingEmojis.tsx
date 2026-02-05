@@ -5,73 +5,66 @@ interface FloatingEmojisProps {
   visualStage?: "happy" | "melancholy" | "cloudy" | "storm" | "abyss" | "void";
 }
 
+// Função para gerar número pseudo-aleatório determinístico baseado em seed
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed * 9999) * 10000;
+  return x - Math.floor(x);
+};
+
+// Emojis por estágio - definidos fora do componente para evitar recriação
+const EMOJIS_BY_STAGE = {
+  happy: ["☀️", "🌤️", "⭐", "✨", "🌈", "🌸", "🦋", "🐝", "🌻", "💛"],
+  melancholy: ["🌤️", "🍂", "🥀", "😔", "💭", "🌫️", "🍁", "💔", "😕", "🌾"],
+  cloudy: ["☁️", "🌫️", "💧", "🌧️", "💦", "😢", "🌨️", "🪨", "🌬️", "❄️"],
+  storm: ["⛈️", "⚡", "🌪️", "💨", "🌩️", "💀", "🦇", "👻", "🌑", "😱"],
+  abyss: ["💀", "🦇", "👻", "🕯️", "☠️", "🖤", "🪦", "🕷️", "🐀", "👁️"],
+  void: ["🕳️", "👁️", "⚫", "∅", "💀", "🖤", "👻", "☠️", "🌑", "⬛"],
+};
+
+// Configuração de animação por estágio
+const ANIMATION_CONFIG = {
+  happy: { direction: "up" as const, speed: 1, wobble: 30 },
+  melancholy: { direction: "down" as const, speed: 0.8, wobble: 20 },
+  cloudy: { direction: "down" as const, speed: 1.2, wobble: 10 },
+  storm: { direction: "diagonal" as const, speed: 2, wobble: 50 },
+  abyss: { direction: "random" as const, speed: 0.5, wobble: 15 },
+  void: { direction: "inward" as const, speed: 0.3, wobble: 5 },
+};
+
+// Quantidade de partículas por estágio
+const PARTICLE_COUNT = {
+  happy: 15,
+  melancholy: 15,
+  cloudy: 15,
+  storm: 10,
+  abyss: 8,
+  void: 5,
+};
+
+// Gera partículas com posições determinísticas
+const generateParticles = (stage: keyof typeof EMOJIS_BY_STAGE) => {
+  const count = PARTICLE_COUNT[stage];
+  const emojis = EMOJIS_BY_STAGE[stage];
+  const config = ANIMATION_CONFIG[stage];
+
+  return [...Array(count)].map((_, i) => ({
+    id: i,
+    emoji: emojis[Math.floor(seededRandom(i * 13 + 7) * emojis.length)],
+    x: seededRandom(i * 17 + 3) * 100,
+    delay: seededRandom(i * 23 + 11) * 5,
+    duration: (10 + seededRandom(i * 31 + 19) * 10) / config.speed,
+    size: 20 + seededRandom(i * 41 + 29) * 20,
+  }));
+};
+
 function FloatingEmojis({ visualStage = "happy" }: FloatingEmojisProps) {
-  // Emojis que mudam conforme o estágio
-  const getEmojis = () => {
-    switch (visualStage) {
-      case "happy":
-        return ["☀️", "🌤️", "⭐", "✨", "🌈", "🌸", "🦋", "🐝", "🌻", "💛"];
-      case "melancholy":
-        return ["🌤️", "🍂", "🥀", "😔", "💭", "🌫️", "🍁", "💔", "😕", "🌾"];
-      case "cloudy":
-        return ["☁️", "🌫️", "💧", "🌧️", "💦", "😢", "🌨️", "🪨", "🌬️", "❄️"];
-      case "storm":
-        return ["⛈️", "⚡", "🌪️", "💨", "🌩️", "💀", "🦇", "👻", "🌑", "😱"];
-      case "abyss":
-        return ["💀", "🦇", "👻", "🕯️", "☠️", "🖤", "🪦", "🕷️", "🐀", "👁️"];
-      case "void":
-        return ["🕳️", "👁️", "⚫", "∅", "💀", "🖤", "👻", "☠️", "🌑", "⬛"];
-      default:
-        return ["☀️", "🌤️", "⭐", "✨", "🌈", "🌸", "🦋", "🐝", "🌻", "💛"];
-    }
-  };
-
-  const emojis = getEmojis();
-
-  // Quantidade de partículas diminui conforme fica mais escuro
-  const particleCount =
-    visualStage === "void"
-      ? 5
-      : visualStage === "abyss"
-        ? 8
-        : visualStage === "storm"
-          ? 10
-          : 15;
-
-  // Velocidade e direção mudam conforme o estágio
-  const getAnimationConfig = () => {
-    switch (visualStage) {
-      case "happy":
-        return { direction: "up", speed: 1, wobble: 30 };
-      case "melancholy":
-        return { direction: "down", speed: 0.8, wobble: 20 };
-      case "cloudy":
-        return { direction: "down", speed: 1.2, wobble: 10 };
-      case "storm":
-        return { direction: "diagonal", speed: 2, wobble: 50 };
-      case "abyss":
-        return { direction: "random", speed: 0.5, wobble: 15 };
-      case "void":
-        return { direction: "inward", speed: 0.3, wobble: 5 };
-      default:
-        return { direction: "up", speed: 1, wobble: 30 };
-    }
-  };
-
-  const config = getAnimationConfig();
-
+  // Memoizar partículas apenas quando o estágio muda
   const particles = useMemo(
-    () =>
-      [...Array(particleCount)].map((_, i) => ({
-        id: i,
-        emoji: emojis[Math.floor(Math.random() * emojis.length)],
-        x: Math.random() * 100,
-        delay: Math.random() * 5,
-        duration: (10 + Math.random() * 10) / config.speed,
-        size: 20 + Math.random() * 20,
-      })),
+    () => generateParticles(visualStage),
     [visualStage],
   );
+
+  const config = ANIMATION_CONFIG[visualStage];
 
   // Animação baseada na direção
   const getAnimation = (particle: (typeof particles)[0]) => {
@@ -93,26 +86,22 @@ function FloatingEmojis({ visualStage = "happy" }: FloatingEmojisProps) {
           rotate: [0, 360],
         };
       case "random":
+        // Usar valores determinísticos baseados no ID da partícula
+        const randY1 = seededRandom(particle.id * 47) * window.innerHeight;
+        const randY2 = seededRandom(particle.id * 53) * window.innerHeight;
+        const randX1 = seededRandom(particle.id * 59) * 100 - 50;
+        const randX2 = seededRandom(particle.id * 61) * 100 - 50;
         return {
-          y: [
-            Math.random() * window.innerHeight,
-            Math.random() * window.innerHeight,
-          ],
-          x: [Math.random() * 100 - 50, Math.random() * 100 - 50],
+          y: [randY1, randY2],
+          x: [randX1, randX2],
           scale: [1, 1.2, 0.8, 1],
         };
       case "inward":
-        // Partículas são sugadas para o centro
         return {
           x: [particle.x > 50 ? 100 : -100, 50],
-          y: [Math.random() * 100, 50],
+          y: [seededRandom(particle.id * 67) * 100, 50],
           scale: [1, 0],
           opacity: [1, 0],
-        };
-      default:
-        return {
-          y: [window.innerHeight, -100],
-          x: [0, config.wobble, -config.wobble, 0],
         };
     }
   };
@@ -125,7 +114,7 @@ function FloatingEmojis({ visualStage = "happy" }: FloatingEmojisProps) {
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
       {particles.map((particle) => (
         <motion.div
-          key={particle.id}
+          key={`${visualStage}-${particle.id}`}
           className="absolute"
           style={{
             left: `${particle.x}%`,
