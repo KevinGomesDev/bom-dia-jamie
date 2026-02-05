@@ -80,7 +80,7 @@ function GameStats({
           text: "text-red-200",
           subText: "text-red-400",
           icon: "💀",
-          currencyName: "Almas",
+          currencyName: "Cadáveres",
           levelIcon: "🕯️",
         };
       case "void":
