@@ -208,9 +208,13 @@ function UpgradeShop({
                   ? { rotate: [0, 5, -5, 0] }
                   : visualStage === "void"
                     ? { opacity: [0.5, 1, 0.5] }
-                    : {}
+                    : undefined
               }
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={
+                visualStage === "abyss" || visualStage === "void"
+                  ? { duration: 2, repeat: Infinity }
+                  : undefined
+              }
             >
               {upgrade.emoji}
             </motion.div>

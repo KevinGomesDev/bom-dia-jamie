@@ -127,7 +127,7 @@ function FunnyMessages({
           scale: [0.98, 1.02, 0.98],
           filter: ["blur(0px)", "blur(1px)", "blur(0px)"],
         }
-      : {};
+      : null;
 
   // Animação de tremor para storm
   const stormAnimation =
@@ -135,7 +135,10 @@ function FunnyMessages({
       ? {
           x: [0, -2, 2, -1, 1, 0],
         }
-      : {};
+      : null;
+
+  // Flag para saber se deve animar
+  const shouldAnimate = visualStage === "void" || visualStage === "storm";
 
   // Dicas progressivamente mais sombrias
   const getTip = () => {
@@ -160,15 +163,23 @@ function FunnyMessages({
         className="max-w-md mx-auto text-center"
       >
         <motion.div
-          animate={{
-            ...voidAnimation,
-            ...stormAnimation,
-          }}
-          transition={{
-            duration: visualStage === "void" ? 3 : 0.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={
+            shouldAnimate
+              ? {
+                  ...(voidAnimation || {}),
+                  ...(stormAnimation || {}),
+                }
+              : undefined
+          }
+          transition={
+            shouldAnimate
+              ? {
+                  duration: visualStage === "void" ? 3 : 0.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }
+              : undefined
+          }
           className={`backdrop-blur-md rounded-2xl p-3 md:p-4 border ${styles.bg} ${styles.shadow}`}
         >
           <motion.p
@@ -182,9 +193,13 @@ function FunnyMessages({
                       "0 0 10px rgba(255,0,0,0.5)",
                     ],
                   }
-                : {}
+                : undefined
             }
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={
+              visualStage === "abyss" || visualStage === "void"
+                ? { duration: 2, repeat: Infinity }
+                : undefined
+            }
           >
             {displayMessage}
           </motion.p>
