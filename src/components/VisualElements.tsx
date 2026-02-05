@@ -13,346 +13,410 @@ function VisualElements({
 }: VisualElementsProps) {
   // Calcular progresso para elementos visuais
   const progress = level + Math.floor(totalUpgrades / 2);
-  const isDark = progress < 2;
-  const isSunrise = progress >= 4 && progress < 7;
+
+  // Determinar estágio
+  const isHappy = progress < 2;
+  const isMelancholy = progress >= 2 && progress < 4;
+  const isCloudy = progress >= 4 && progress < 7;
+  const isStorm = progress >= 7 && progress < 12;
+  const isAbyss = progress >= 12 && progress < 20;
+  const isVoid = progress >= 20;
 
   return (
     <>
-      {/* Estrelas (aparecem no nível 1+ mas desaparecem gradualmente com a luz) */}
-      {level >= 1 && progress < 12 && (
+      {/* ========== FASE FELIZ ========== */}
+      {isHappy && (
         <>
-          {[...Array(Math.min(level * 2, 15))].map((_, i) => (
+          {/* Sol brilhante */}
+          <motion.div
+            className="absolute top-8 right-8 text-5xl sm:text-6xl pointer-events-none"
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: 360,
+            }}
+            transition={{
+              scale: { duration: 2, repeat: Infinity },
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+            }}
+          >
+            ☀️
+          </motion.div>
+
+          {/* Borboletas coloridas */}
+          {[...Array(3)].map((_, i) => (
             <motion.div
-              key={`star-${i}`}
-              className={`absolute pointer-events-none ${isDark ? "text-blue-200" : "text-yellow-200"}`}
-              initial={{ opacity: 0 }}
+              key={`butterfly-${i}`}
+              className="absolute text-2xl pointer-events-none"
               animate={{
-                opacity: isDark ? [0.4, 0.9, 0.4] : [0.2, 0.5, 0.2],
-                scale: [0.8, 1.2, 0.8],
+                x: [100 + i * 100, 150 + i * 100, 100 + i * 100],
+                y: [100 + i * 50, 80 + i * 50, 100 + i * 50],
+              }}
+              transition={{
+                duration: 5 + i,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              🦋
+            </motion.div>
+          ))}
+
+          {/* Flores */}
+          <motion.div className="absolute bottom-4 left-4 text-3xl pointer-events-none">
+            🌸
+          </motion.div>
+          <motion.div className="absolute bottom-4 right-4 text-3xl pointer-events-none">
+            🌺
+          </motion.div>
+          <motion.div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-3xl pointer-events-none">
+            🌻
+          </motion.div>
+
+          {/* Arco-íris */}
+          <motion.div
+            className="absolute top-16 left-1/2 -translate-x-1/2 text-6xl pointer-events-none opacity-70"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            🌈
+          </motion.div>
+        </>
+      )}
+
+      {/* ========== FASE MELANCÓLICA ========== */}
+      {isMelancholy && (
+        <>
+          {/* Sol ficando fraco */}
+          <motion.div
+            className="absolute top-8 right-8 text-4xl sm:text-5xl pointer-events-none opacity-60"
+            animate={{ opacity: [0.6, 0.4, 0.6] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            🌤️
+          </motion.div>
+
+          {/* Flores murchando */}
+          <motion.div className="absolute bottom-4 left-8 text-2xl pointer-events-none opacity-70">
+            🥀
+          </motion.div>
+          <motion.div className="absolute bottom-4 right-8 text-2xl pointer-events-none opacity-70">
+            🍂
+          </motion.div>
+
+          {/* Folhas caindo */}
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={`leaf-${i}`}
+              className="absolute text-xl pointer-events-none"
+              initial={{ x: 50 + i * 80, y: -20 }}
+              animate={{
+                y: [0, 400],
+                x: [50 + i * 80, 70 + i * 80, 40 + i * 80],
+                rotate: [0, 360],
+              }}
+              transition={{
+                duration: 6 + i,
+                repeat: Infinity,
+                delay: i * 1.5,
+              }}
+            >
+              🍂
+            </motion.div>
+          ))}
+        </>
+      )}
+
+      {/* ========== FASE NUBLADA ========== */}
+      {isCloudy && (
+        <>
+          {/* Nuvens cinzas */}
+          <motion.div
+            className="absolute top-10 text-5xl pointer-events-none"
+            animate={{ x: [-50, windowWidth + 50] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          >
+            ☁️
+          </motion.div>
+          <motion.div
+            className="absolute top-20 text-4xl pointer-events-none opacity-80"
+            animate={{ x: [windowWidth + 50, -50] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          >
+            🌫️
+          </motion.div>
+
+          {/* Gotas de chuva leve */}
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={`drop-${i}`}
+              className="absolute text-sm pointer-events-none opacity-60"
+              initial={{ y: -20 }}
+              animate={{ y: [0, 500] }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                delay: i * 0.3,
+              }}
+              style={{ left: `${10 + i * 12}%` }}
+            >
+              💧
+            </motion.div>
+          ))}
+
+          {/* Poças d'água */}
+          <motion.div
+            className="absolute bottom-2 left-1/4 text-2xl pointer-events-none opacity-50"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            💦
+          </motion.div>
+        </>
+      )}
+
+      {/* ========== FASE TEMPESTADE ========== */}
+      {isStorm && (
+        <>
+          {/* Nuvens de tempestade */}
+          <motion.div
+            className="absolute top-5 left-1/4 text-6xl pointer-events-none"
+            animate={{ x: [-20, 20, -20] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >
+            ⛈️
+          </motion.div>
+
+          {/* Relâmpagos */}
+          <motion.div
+            className="absolute top-20 left-1/2 text-4xl pointer-events-none"
+            animate={{ opacity: [0, 1, 0, 0, 0] }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              times: [0, 0.1, 0.15, 0.5, 1],
+            }}
+          >
+            ⚡
+          </motion.div>
+
+          {/* Chuva forte */}
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={`rain-${i}`}
+              className="absolute text-xs pointer-events-none"
+              initial={{ y: -20 }}
+              animate={{ y: [0, 600] }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                delay: i * 0.1,
+              }}
+              style={{ left: `${5 + i * 6}%` }}
+            >
+              💧
+            </motion.div>
+          ))}
+
+          {/* Vento */}
+          <motion.div
+            className="absolute top-1/2 text-2xl pointer-events-none opacity-40"
+            animate={{ x: [-100, windowWidth + 100] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          >
+            💨
+          </motion.div>
+
+          {/* Efeito de névoa */}
+          <div className="fog-effect" />
+        </>
+      )}
+
+      {/* ========== FASE ABISMO ========== */}
+      {isAbyss && (
+        <>
+          {/* Lua sangrenta */}
+          <motion.div
+            className="absolute top-8 right-8 text-5xl pointer-events-none"
+            animate={{
+              filter: ["brightness(1)", "brightness(0.7)", "brightness(1)"],
+            }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >
+            🌑
+          </motion.div>
+
+          {/* Morcegos voando */}
+          {[...Array(4)].map((_, i) => (
+            <motion.div
+              key={`bat-${i}`}
+              className="absolute text-2xl pointer-events-none"
+              initial={{ x: i % 2 === 0 ? -50 : windowWidth + 50 }}
+              animate={{ x: i % 2 === 0 ? windowWidth + 50 : -50 }}
+              transition={{
+                duration: 8 + i * 2,
+                repeat: Infinity,
+                delay: i * 2,
+              }}
+              style={{ top: `${10 + i * 15}%` }}
+            >
+              🦇
+            </motion.div>
+          ))}
+
+          {/* Fantasmas */}
+          <motion.div
+            className="absolute text-3xl pointer-events-none opacity-30"
+            animate={{
+              x: [100, 150, 100],
+              y: [200, 180, 200],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 6, repeat: Infinity }}
+          >
+            👻
+          </motion.div>
+
+          {/* Caveiras */}
+          <motion.div
+            className="absolute bottom-8 left-8 text-2xl pointer-events-none opacity-60"
+            animate={{ rotate: [-10, 10, -10] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            💀
+          </motion.div>
+          <motion.div
+            className="absolute bottom-8 right-8 text-2xl pointer-events-none opacity-60"
+            animate={{ rotate: [10, -10, 10] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            ☠️
+          </motion.div>
+
+          {/* Velas tremulando */}
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={`candle-${i}`}
+              className="absolute bottom-4 text-xl pointer-events-none"
+              style={{ left: `${25 + i * 25}%` }}
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1 + i * 0.3, repeat: Infinity }}
+            >
+              🕯️
+            </motion.div>
+          ))}
+
+          {/* Efeito de escuridão */}
+          <div className="darkness-effect" />
+        </>
+      )}
+
+      {/* ========== FASE VAZIO ========== */}
+      {isVoid && (
+        <>
+          {/* Buraco negro central */}
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl pointer-events-none"
+            animate={{
+              scale: [1, 1.2, 1],
+              rotate: [0, 360],
+            }}
+            transition={{
+              scale: { duration: 4, repeat: Infinity },
+              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+            }}
+          >
+            🕳️
+          </motion.div>
+
+          {/* Almas sendo sugadas */}
+          {[...Array(8)].map((_, i) => {
+            const angle = (i / 8) * Math.PI * 2;
+            const radius = 150;
+            return (
+              <motion.div
+                key={`soul-${i}`}
+                className="absolute text-xl pointer-events-none"
+                style={{
+                  left: "50%",
+                  top: "50%",
+                }}
+                animate={{
+                  x: [Math.cos(angle) * radius, 0],
+                  y: [Math.sin(angle) * radius, 0],
+                  opacity: [0.8, 0],
+                  scale: [1, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: i * 0.4,
+                }}
+              >
+                👻
+              </motion.div>
+            );
+          })}
+
+          {/* Partículas de trevas */}
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={`particle-${i}`}
+              className="absolute w-1 h-1 bg-red-900 rounded-full pointer-events-none"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                opacity: [0, 0.8, 0],
+                scale: [0, 1, 0],
               }}
               transition={{
                 duration: 2 + Math.random() * 2,
                 repeat: Infinity,
                 delay: i * 0.2,
               }}
-              style={{
-                left: `${10 + ((i * 17) % 80)}%`,
-                top: `${5 + ((i * 23) % 30)}%`,
-                fontSize: `${8 + Math.random() * 8}px`,
-              }}
-            >
-              {isDark ? "⭐" : "✨"}
-            </motion.div>
+            />
           ))}
-        </>
-      )}
 
-      {/* Lua (modo escuro) */}
-      {progress < 4 && (
-        <motion.div
-          className="absolute top-8 right-8 text-4xl sm:text-5xl pointer-events-none"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{
-            opacity: isDark ? 0.9 : 0.5,
-            y: 0,
-            rotate: isDark ? 0 : 15,
-          }}
-          transition={{ duration: 1 }}
-        >
-          🌙
-        </motion.div>
-      )}
-
-      {/* Sol nascendo (sunrise) */}
-      {isSunrise && (
-        <motion.div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 text-6xl sm:text-7xl pointer-events-none"
-          initial={{ y: 100, opacity: 0 }}
-          animate={{
-            y: [80, 60, 80],
-            opacity: 1,
-          }}
-          transition={{
-            y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-            opacity: { duration: 1 },
-          }}
-        >
-          🌅
-        </motion.div>
-      )}
-
-      {/* Sol do dia (morning - gradient) */}
-      {progress >= 7 && progress < 20 && (
-        <motion.div
-          className="absolute top-8 right-8 text-4xl sm:text-5xl pointer-events-none"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{
-            opacity: 1,
-            scale: [1, 1.1, 1],
-            rotate: 360,
-          }}
-          transition={{
-            scale: { duration: 3, repeat: Infinity },
-            rotate: { duration: 30, repeat: Infinity, ease: "linear" },
-            opacity: { duration: 1 },
-          }}
-        >
-          ☀️
-        </motion.div>
-      )}
-
-      {/* Super Sol (radiante) */}
-      {progress >= 20 && (
-        <>
-          {/* Raios de luz */}
-          <div className="sun-rays" />
-
-          <motion.div
-            className="absolute top-6 right-6 text-5xl sm:text-6xl pointer-events-none"
-            animate={{
-              scale: [1, 1.3, 1],
-              filter: ["brightness(1)", "brightness(1.8)", "brightness(1)"],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-            }}
-          >
-            🌟
-          </motion.div>
-
-          {/* Aurora boreal */}
-          <div className="aurora-effect" />
-        </>
-      )}
-
-      {/* Horizonte com gradiente (sunrise) */}
-      {isSunrise && (
-        <motion.div
-          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(255, 107, 107, 0.4), transparent)",
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        />
-      )}
-
-      {/* Flores (aparecem com upgrades) */}
-      {totalUpgrades >= 3 && (
-        <>
-          <motion.div
-            className="absolute bottom-4 left-4 text-2xl pointer-events-none"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            🌸
-          </motion.div>
-          <motion.div
-            className="absolute bottom-4 right-4 text-2xl pointer-events-none"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            🌺
-          </motion.div>
-        </>
-      )}
-
-      {/* Mais flores com mais upgrades */}
-      {totalUpgrades >= 6 && (
-        <>
-          <motion.div
-            className="absolute bottom-8 left-16 text-xl pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            🌷
-          </motion.div>
-          <motion.div
-            className="absolute bottom-6 right-16 text-xl pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            🌻
-          </motion.div>
-          <motion.div
-            className="absolute bottom-3 left-1/3 text-lg pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            🌼
-          </motion.div>
-        </>
-      )}
-
-      {/* Grama animada (upgrades 10+) */}
-      {totalUpgrades >= 10 && (
-        <motion.div
-          className="absolute bottom-0 left-0 right-0 text-2xl pointer-events-none flex justify-around overflow-hidden"
-          style={{ lineHeight: 0 }}
-        >
-          {[...Array(8)].map((_, i) => (
-            <motion.span
-              key={`grass-${i}`}
-              animate={{ rotate: [-5, 5, -5] }}
-              transition={{
-                duration: 2 + i * 0.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            >
-              🌿
-            </motion.span>
-          ))}
-        </motion.div>
-      )}
-
-      {/* Pássaros (nível 5+) - mais variedade */}
-      {level >= 5 && (
-        <>
-          <motion.div
-            className="absolute text-xl pointer-events-none"
-            initial={{ x: -50, y: 60 }}
-            animate={{ x: windowWidth + 50 }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          >
-            🐦
-          </motion.div>
-          {level >= 8 && (
+          {/* Olhos na escuridão */}
+          {[...Array(4)].map((_, i) => (
             <motion.div
-              className="absolute text-lg pointer-events-none"
-              initial={{ x: windowWidth + 50, y: 90 }}
-              animate={{ x: -50 }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear",
-                delay: 3,
-              }}
-            >
-              🕊️
-            </motion.div>
-          )}
-        </>
-      )}
-
-      {/* Borboletas (nível 7+) - mais cores */}
-      {level >= 7 && (
-        <>
-          {["🦋", "🦋", "🦋"].map((butterfly, i) => (
-            <motion.div
-              key={`butterfly-${i}`}
-              className="absolute text-lg pointer-events-none"
+              key={`eyes-${i}`}
+              className="absolute text-2xl pointer-events-none"
               style={{
-                filter:
-                  i === 1
-                    ? "hue-rotate(60deg)"
-                    : i === 2
-                      ? "hue-rotate(180deg)"
-                      : "none",
+                left: `${15 + i * 20}%`,
+                top: `${20 + (i % 2) * 50}%`,
               }}
               animate={{
-                x: [
-                  100 + i * 80,
-                  150 + i * 80,
-                  100 + i * 80,
-                  50 + i * 80,
-                  100 + i * 80,
-                ],
-                y: [
-                  100 + i * 30,
-                  80 + i * 30,
-                  120 + i * 30,
-                  90 + i * 30,
-                  100 + i * 30,
-                ],
+                opacity: [0, 0.6, 0.6, 0],
               }}
               transition={{
-                duration: 8 + i * 2,
+                duration: 4,
                 repeat: Infinity,
-                ease: "easeInOut",
                 delay: i * 1.5,
+                times: [0, 0.1, 0.9, 1],
               }}
             >
-              {butterfly}
+              👁️
             </motion.div>
           ))}
+
+          {/* Texto assustador */}
+          <motion.div
+            className="absolute bottom-20 left-1/2 -translate-x-1/2 text-red-800 text-sm font-bold pointer-events-none"
+            animate={{ opacity: [0, 0.5, 0] }}
+            transition={{ duration: 5, repeat: Infinity }}
+          >
+            O vazio consome tudo...
+          </motion.div>
+
+          {/* Escuridão total pulsante */}
+          <motion.div
+            className="absolute inset-0 bg-black pointer-events-none"
+            animate={{ opacity: [0, 0.3, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          />
         </>
-      )}
-
-      {/* Arco-íris (nível 10+) */}
-      {level >= 10 && (
-        <motion.div
-          className="absolute top-16 left-1/2 -translate-x-1/2 text-6xl sm:text-7xl pointer-events-none"
-          initial={{ opacity: 0, scale: 0.5, y: 20 }}
-          animate={{
-            opacity: [0.4, 0.6, 0.4],
-            scale: 1,
-            y: 0,
-          }}
-          transition={{
-            opacity: { duration: 3, repeat: Infinity },
-            scale: { duration: 1 },
-            y: { duration: 1 },
-          }}
-        >
-          🌈
-        </motion.div>
-      )}
-
-      {/* Partículas mágicas flutuantes (nível 15+) */}
-      {level >= 15 && (
-        <>
-          {[...Array(15)].map((_, i) => (
-            <motion.div
-              key={`magic-${i}`}
-              className="absolute text-sm pointer-events-none"
-              initial={{
-                x: Math.random() * windowWidth,
-                y: Math.random() * 400 + 100,
-                opacity: 0,
-              }}
-              animate={{
-                y: [null, Math.random() * -200],
-                opacity: [0, 1, 0],
-                scale: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: 4 + Math.random() * 3,
-                repeat: Infinity,
-                delay: i * 0.4,
-                ease: "easeOut",
-              }}
-            >
-              {["✨", "💫", "⭐", "🌟", "💖", "💜", "💛"][i % 7]}
-            </motion.div>
-          ))}
-        </>
-      )}
-
-      {/* Fogos de artifício ocasionais (nível 20+) */}
-      {level >= 20 && (
-        <motion.div
-          className="absolute top-1/4 left-1/4 text-4xl pointer-events-none"
-          animate={{
-            scale: [0, 1.5, 0],
-            opacity: [0, 1, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 5,
-          }}
-        >
-          🎆
-        </motion.div>
       )}
     </>
   );

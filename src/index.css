@@ -24,59 +24,10 @@ body {
   font-family: "Pacifico", cursive;
 }
 
-/* Fundo escuro inicial (dark mode) */
-.dark-bg {
-  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f0f23, #1a1a2e);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-}
+/* ========== TEMA INVERTIDO - DO FELIZ AO SOMBRIO ========== */
 
-/* Transição para amanhecer */
-.dawn-bg {
-  background: linear-gradient(-45deg, #2d1b4e, #4a3f6b, #5c4d7d, #3d2d5c);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-}
-
-/* Nascer do sol - cores quentes no horizonte */
-.sunrise-bg {
-  background: linear-gradient(
-    to top,
-    #ff6b6b 0%,
-    #ffa07a 20%,
-    #ffb347 40%,
-    #87739c 70%,
-    #4a3f6b 100%
-  );
-  background-size: 100% 200%;
-  animation: sunriseShift 8s ease infinite alternate;
-}
-
-@keyframes sunriseShift {
-  0% {
-    background-position: 0% 100%;
-  }
-  100% {
-    background-position: 0% 0%;
-  }
-}
-
-/* Transição para manhã */
-.morning-bg {
-  background: linear-gradient(-45deg, #ff9a56, #ffcd67, #ffa07a, #ffb347);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-}
-
-/* Gradiente animado de fundo (dia completo) */
-.gradient-bg {
-  background: linear-gradient(-45deg, #ff9a56, #ffcd67, #87ceeb, #98d8c8);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-}
-
-/* Fundo radiante (máximo) */
-.radiant-bg {
+/* Começa feliz e brilhante */
+.happy-bg {
   background: linear-gradient(
     -45deg,
     #ffd700,
@@ -89,63 +40,156 @@ body {
   animation: gradientShift 10s ease infinite;
 }
 
-/* Aurora boreal para níveis muito altos */
-.aurora-effect {
+/* Melancólico - cores desbotando */
+.melancholy-bg {
+  background: linear-gradient(-45deg, #8fa8bf, #a0a8b0, #9099a2, #7a8899);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+/* Nublado - cinzas dominando */
+.cloudy-bg {
+  background: linear-gradient(-45deg, #5a6374, #4a5568, #3d4852, #2d3748);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Tempestade - escuro com tons de azul/roxo */
+.storm-bg {
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #2d1b4e, #0f0f23);
+  background-size: 400% 400%;
+  animation: stormShift 8s ease infinite;
+}
+
+@keyframes stormShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  25%,
+  75% {
+    filter: brightness(1.5);
+  }
+}
+
+/* Abismo - quase total escuridão com vermelho */
+.abyss-bg {
+  background: linear-gradient(-45deg, #0a0a0f, #1a0a0a, #0f0a15, #050505);
+  background-size: 400% 400%;
+  animation: abyssShift 20s ease infinite;
+}
+
+@keyframes abyssShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Vazio - escuridão total pulsante */
+.void-bg {
+  background: radial-gradient(
+    ellipse at center,
+    #0a0005 0%,
+    #000000 50%,
+    #050002 100%
+  );
+  animation: voidPulse 4s ease infinite;
+}
+
+@keyframes voidPulse {
+  0%,
+  100% {
+    background: radial-gradient(
+      ellipse at center,
+      #0a0005 0%,
+      #000000 50%,
+      #050002 100%
+    );
+  }
+  50% {
+    background: radial-gradient(
+      ellipse at center,
+      #100008 0%,
+      #020000 50%,
+      #080004 100%
+    );
+  }
+}
+
+/* Efeito de chuva */
+.rain-effect {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 40%;
+  bottom: 0;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(100, 150, 200, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+/* Efeito de névoa/neblina */
+.fog-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
   background: linear-gradient(
     180deg,
-    rgba(0, 255, 128, 0.3) 0%,
-    rgba(0, 191, 255, 0.2) 30%,
-    rgba(138, 43, 226, 0.2) 60%,
-    transparent 100%
+    rgba(50, 50, 60, 0.3) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(30, 30, 40, 0.4) 100%
   );
-  animation: auroraWave 4s ease-in-out infinite;
   pointer-events: none;
+  animation: fogDrift 10s ease-in-out infinite;
 }
 
-@keyframes auroraWave {
+@keyframes fogDrift {
   0%,
   100% {
     opacity: 0.5;
-    transform: translateY(0);
   }
   50% {
     opacity: 0.8;
-    transform: translateY(-10px);
   }
 }
 
-/* Raios de luz do sol */
-.sun-rays {
+/* Efeito de escuridão pulsante */
+.darkness-effect {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 200%;
-  height: 200%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: radial-gradient(
     circle at center,
-    rgba(255, 215, 0, 0.3) 0%,
-    rgba(255, 215, 0, 0.1) 30%,
-    transparent 60%
+    transparent 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.7) 100%
   );
-  animation: sunPulse 3s ease-in-out infinite;
+  animation: darknessPulse 3s ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes sunPulse {
+@keyframes darknessPulse {
   0%,
   100% {
     opacity: 0.5;
-    transform: translate(-50%, -50%) scale(1);
   }
   50% {
     opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.1);
   }
 }
 
@@ -171,8 +215,9 @@ body {
 
 /* Texto sem brilho (dark mode) */
 .text-dim {
-  text-shadow: none;
-  opacity: 0.7;
+  text-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+  opacity: 0.6;
+  color: #888;
 }
 
 /* Efeito de partículas flutuantes */

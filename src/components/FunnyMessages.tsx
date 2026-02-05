@@ -3,71 +3,151 @@ import { motion, AnimatePresence } from "framer-motion";
 interface FunnyMessagesProps {
   clickCount: number;
   level?: number;
+  visualStage?: "happy" | "melancholy" | "cloudy" | "storm" | "abyss" | "void";
 }
 
-function FunnyMessages({ clickCount, level = 0 }: FunnyMessagesProps) {
-  const messages = [
-    {
-      threshold: 0,
-      messages: [
-        "😴 Está tão escuro aqui...",
-        "💤 *silêncio*",
-        "🌑 Jamie ainda está dormindo...",
-      ],
-    },
-    {
-      threshold: 5,
-      messages: [
-        "🛏️ Ei, hora de acordar!",
-        "O café não vai se beber sozinho...",
-        "Vamos começar o dia com energia! ☕",
-      ],
-    },
-    {
-      threshold: 15,
-      messages: [
-        "🎉 Jamie tá acordando!",
-        "Os sóis estão brilhando!",
-        "Que dia lindo lá fora! ☀️",
-      ],
-    },
-    {
-      threshold: 30,
-      messages: [
-        "⚡ MODO TURBO ATIVADO!",
-        "Jamie tá on fire!",
-        "Ninguém segura essa energia!",
-      ],
-    },
-    {
-      threshold: 50,
-      messages: [
-        "🔥 COMBO INCRÍVEL!",
-        "Jamie é imparável!",
-        "Os sóis estão chovendo!",
-      ],
-    },
-    {
-      threshold: 80,
-      messages: [
-        "🚨 ALERTA: FELICIDADE MÁXIMA!",
-        "Jamie transcendeu!",
-        "O universo sorri pra você! ✨",
-        "Você é pura luz! 🌟",
-      ],
-    },
-  ];
-
-  const getCurrentMessages = () => {
-    const applicable = messages.filter((m) => clickCount >= m.threshold);
-    return applicable[applicable.length - 1]?.messages || messages[0].messages;
+function FunnyMessages({
+  clickCount,
+  level = 0,
+  visualStage = "happy",
+}: FunnyMessagesProps) {
+  // Mensagens que vão ficando cada vez mais tristes conforme o jogo progride
+  const messagesByStage = {
+    happy: [
+      "☀️ Que dia lindo!",
+      "🌈 Tudo vai dar certo!",
+      "🦋 As borboletas estão voando!",
+      "🌸 Que flores bonitas!",
+      "😊 Jamie está tão feliz hoje!",
+      "✨ O mundo é mágico!",
+    ],
+    melancholy: [
+      "🌤️ O dia está... ok, eu acho.",
+      "😐 Poderia ser pior...",
+      "🍂 As folhas estão caindo...",
+      "🥀 Essa flor já foi mais bonita.",
+      "😕 Jamie está pensativo...",
+      "💭 Será que vale a pena?",
+    ],
+    cloudy: [
+      "☁️ O céu está cinza...",
+      "💧 Parece que vai chover...",
+      "😔 Jamie não está muito bem...",
+      "🌫️ Tudo está tão nebuloso...",
+      "😞 Nada parece fazer sentido.",
+      "💔 Algo está errado...",
+    ],
+    storm: [
+      "⛈️ A tempestade chegou.",
+      "⚡ Os raios não param!",
+      "😢 Jamie está chorando...",
+      "💨 O vento leva tudo embora...",
+      "🌧️ As lágrimas caem como chuva.",
+      "😭 Por que dói tanto?",
+    ],
+    abyss: [
+      "🌑 A escuridão consome tudo...",
+      "💀 O fim está próximo...",
+      "🦇 Criaturas sombrias rondam...",
+      "👻 Os fantasmas sussurram...",
+      "😵 Jamie não aguenta mais...",
+      "🕯️ A última vela está apagando...",
+      "☠️ O abismo chama...",
+    ],
+    void: [
+      "🕳️ ...",
+      "💀 ...",
+      "⚫ O vazio é absoluto.",
+      "🖤 Não há mais nada.",
+      "👁️ Algo observa do escuro.",
+      "∅ [ V A Z I O ]",
+      "☠️ ᵗᵘᵈᵒ ᵃᶜᵃᵇᵒᵘ",
+      "🔮 A eternidade aguarda...",
+    ],
   };
 
-  const currentMessages = getCurrentMessages();
+  const currentMessages = messagesByStage[visualStage] || messagesByStage.happy;
   const displayMessage = currentMessages[clickCount % currentMessages.length];
 
-  // Determinar estilo baseado no nível
-  const isDark = level < 2;
+  // Estilos dinâmicos baseados no stage
+  const getStyles = () => {
+    switch (visualStage) {
+      case "happy":
+        return {
+          bg: "bg-white/20 border-white/30",
+          text: "text-white",
+          shadow: "shadow-xl",
+        };
+      case "melancholy":
+        return {
+          bg: "bg-gray-300/20 border-gray-400/30",
+          text: "text-gray-200",
+          shadow: "shadow-lg",
+        };
+      case "cloudy":
+        return {
+          bg: "bg-gray-500/30 border-gray-500/40",
+          text: "text-gray-300",
+          shadow: "shadow-md",
+        };
+      case "storm":
+        return {
+          bg: "bg-gray-700/40 border-gray-600/50",
+          text: "text-gray-200",
+          shadow: "shadow-lg shadow-purple-900/30",
+        };
+      case "abyss":
+        return {
+          bg: "bg-gray-900/60 border-red-900/40",
+          text: "text-red-200",
+          shadow: "shadow-xl shadow-red-900/50",
+        };
+      case "void":
+        return {
+          bg: "bg-black/80 border-black/90",
+          text: "text-gray-500",
+          shadow: "shadow-2xl shadow-black",
+        };
+      default:
+        return {
+          bg: "bg-white/20 border-white/30",
+          text: "text-white",
+          shadow: "shadow-xl",
+        };
+    }
+  };
+
+  const styles = getStyles();
+
+  // Animação especial para void - texto distorcido
+  const voidAnimation =
+    visualStage === "void"
+      ? {
+          opacity: [0.3, 1, 0.3],
+          scale: [0.98, 1.02, 0.98],
+          filter: ["blur(0px)", "blur(1px)", "blur(0px)"],
+        }
+      : {};
+
+  // Animação de tremor para storm
+  const stormAnimation =
+    visualStage === "storm"
+      ? {
+          x: [0, -2, 2, -1, 1, 0],
+        }
+      : {};
+
+  // Dicas progressivamente mais sombrias
+  const getTip = () => {
+    if (level >= 8) return "💀 Não há volta...";
+    if (level >= 6) return "🕯️ A luz está morrendo...";
+    if (level >= 4) return "⛈️ A tempestade só piora...";
+    if (level >= 2) return "☁️ As nuvens estão chegando...";
+    if (clickCount === 5) return "💡 Continue clicando... enquanto pode.";
+    return null;
+  };
+
+  const tip = getTip();
 
   return (
     <AnimatePresence mode="wait">
@@ -79,32 +159,51 @@ function FunnyMessages({ clickCount, level = 0 }: FunnyMessagesProps) {
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         className="max-w-md mx-auto text-center"
       >
-        <div
-          className={`backdrop-blur-md rounded-2xl p-3 md:p-4 shadow-xl border ${
-            isDark
-              ? "bg-gray-800/50 border-gray-600/30"
-              : "bg-white/20 border-white/30"
-          }`}
+        <motion.div
+          animate={{
+            ...voidAnimation,
+            ...stormAnimation,
+          }}
+          transition={{
+            duration: visualStage === "void" ? 3 : 0.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className={`backdrop-blur-md rounded-2xl p-3 md:p-4 border ${styles.bg} ${styles.shadow}`}
         >
           <motion.p
-            className={`text-base sm:text-lg md:text-xl font-medium ${
-              isDark ? "text-gray-300" : "text-white"
-            }`}
-            animate={clickCount > 5 ? { scale: [1, 1.02, 1] } : {}}
-            transition={{ duration: 0.5, repeat: Infinity }}
+            className={`text-base sm:text-lg md:text-xl font-medium ${styles.text}`}
+            animate={
+              visualStage === "abyss" || visualStage === "void"
+                ? {
+                    textShadow: [
+                      "0 0 10px rgba(255,0,0,0.5)",
+                      "0 0 20px rgba(255,0,0,0.8)",
+                      "0 0 10px rgba(255,0,0,0.5)",
+                    ],
+                  }
+                : {}
+            }
+            transition={{ duration: 2, repeat: Infinity }}
           >
             {displayMessage}
           </motion.p>
-        </div>
+        </motion.div>
 
-        {/* Dica especial em certos níveis */}
-        {clickCount === 5 && (
+        {/* Dica que muda conforme o progresso */}
+        {tip && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-xs text-white/70 mt-2"
+            className={`text-xs mt-2 ${
+              level >= 6
+                ? "text-red-400/70"
+                : level >= 4
+                  ? "text-purple-300/70"
+                  : "text-white/70"
+            }`}
           >
-            💡 Dica: Continue clicando para acordar Jamie!
+            {tip}
           </motion.p>
         )}
       </motion.div>

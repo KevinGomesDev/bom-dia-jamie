@@ -83,76 +83,76 @@ const loadGame = (): GameState | null => {
 const INITIAL_UPGRADES: Upgrade[] = [
   {
     id: "coffee",
-    name: "Café",
-    description: "+1 sol por clique",
-    emoji: "☕",
-    baseCost: 10,
-    costMultiplier: 1.5,
+    name: "Café Frio",
+    description: "+1 lágrima por clique",
+    emoji: "🥶",
+    baseCost: 50,
+    costMultiplier: 1.15,
     effect: "clickPower",
     effectValue: 1,
     owned: 0,
   },
   {
     id: "alarm",
-    name: "Despertador",
-    description: "+0.5 sóis/segundo",
-    emoji: "⏰",
-    baseCost: 50,
-    costMultiplier: 1.6,
+    name: "Insônia",
+    description: "+0.1 lágrimas/segundo",
+    emoji: "😵",
+    baseCost: 200,
+    costMultiplier: 1.18,
+    effect: "autoSuns",
+    effectValue: 0.1,
+    owned: 0,
+  },
+  {
+    id: "breakfast",
+    name: "Pão Mofado",
+    description: "+3 lágrimas por clique",
+    emoji: "🍞",
+    baseCost: 1000,
+    costMultiplier: 1.15,
+    effect: "clickPower",
+    effectValue: 3,
+    owned: 0,
+  },
+  {
+    id: "music",
+    name: "Playlist Triste",
+    description: "+0.5 lágrimas/segundo",
+    emoji: "🎻",
+    baseCost: 5000,
+    costMultiplier: 1.2,
     effect: "autoSuns",
     effectValue: 0.5,
     owned: 0,
   },
   {
-    id: "breakfast",
-    name: "Café da Manhã",
-    description: "+2 sóis por clique",
-    emoji: "🥐",
-    baseCost: 100,
-    costMultiplier: 1.5,
-    effect: "clickPower",
-    effectValue: 2,
-    owned: 0,
-  },
-  {
-    id: "music",
-    name: "Playlist",
-    description: "+2 sóis/segundo",
-    emoji: "🎵",
-    baseCost: 250,
-    costMultiplier: 1.7,
-    effect: "autoSuns",
-    effectValue: 2,
-    owned: 0,
-  },
-  {
     id: "pet",
-    name: "Pet Fofo",
-    description: "+5 sóis por clique",
-    emoji: "🐱",
-    baseCost: 500,
-    costMultiplier: 1.6,
+    name: "Gato Preto",
+    description: "+10 lágrimas por clique",
+    emoji: "🐈‍⬛",
+    baseCost: 25000,
+    costMultiplier: 1.15,
     effect: "clickPower",
-    effectValue: 5,
-    owned: 0,
-  },
-  {
-    id: "sunshine",
-    name: "Raio de Sol",
-    description: "+10 sóis/segundo",
-    emoji: "🌈",
-    baseCost: 1000,
-    costMultiplier: 1.8,
-    effect: "autoSuns",
     effectValue: 10,
     owned: 0,
   },
   {
+    id: "darkness",
+    name: "Escuridão",
+    description: "+2 lágrimas/segundo",
+    emoji: "🌑",
+    baseCost: 100000,
+    costMultiplier: 1.22,
+    effect: "autoSuns",
+    effectValue: 2,
+    owned: 0,
+  },
+  {
     id: "secret",
-    name: "O Grande Mistério",
-    description: "???",
-    emoji: "💎",
-    baseCost: 1000000000,
+    name: "O Vazio Eterno",
+    description: "...",
+    emoji: "💀",
+    baseCost: 1000000000000,
     costMultiplier: 1,
     effect: "secret",
     effectValue: 0,
@@ -200,12 +200,12 @@ function App() {
   // Ref para rastrear último tempo de save (para cálculo offline)
   const lastSaveTimeRef = useRef<number>(savedGame?.lastSaveTime ?? Date.now());
 
-  // Calcular XP necessário para o próximo nível (10 + level)
-  const xpForNextLevel = 10 + level;
+  // Calcular XP necessário para o próximo nível (escala lentamente)
+  const xpForNextLevel = Math.floor(25 + level * 5 + Math.pow(level, 1.5));
 
-  // Calcular recompensa de sóis ao subir de nível (exponencial)
+  // Calcular recompensa de sóis ao subir de nível (linear, pequeno bônus)
   const getLevelUpReward = (lvl: number): number => {
-    return Math.floor(10 * Math.pow(1.5, lvl));
+    return Math.floor(5 + lvl * 2);
   };
 
   // Calcular stats baseado nos upgrades
@@ -222,38 +222,38 @@ function App() {
   // Calcular total de upgrades comprados
   const totalUpgrades = upgrades.reduce((acc, u) => acc + u.owned, 0);
 
-  // Determinar o estágio visual baseado no progresso
+  // Determinar o estágio visual baseado no progresso (INVERTIDO - cada vez mais sombrio)
   const visualStage = useMemo(() => {
     const progress = level + Math.floor(totalUpgrades / 2);
-    if (progress >= 20) return "radiant";
-    if (progress >= 12) return "gradient";
-    if (progress >= 7) return "morning";
-    if (progress >= 4) return "sunrise";
-    if (progress >= 2) return "dawn";
-    return "dark";
+    if (progress >= 20) return "void"; // Vazio total
+    if (progress >= 12) return "abyss"; // Abismo
+    if (progress >= 7) return "storm"; // Tempestade
+    if (progress >= 4) return "cloudy"; // Nublado
+    if (progress >= 2) return "melancholy"; // Melancólico
+    return "happy"; // Começa feliz
   }, [level, totalUpgrades]);
 
   // Classes de fundo baseadas no estágio
   const bgClass = useMemo(() => {
     switch (visualStage) {
-      case "radiant":
-        return "radiant-bg";
-      case "gradient":
-        return "gradient-bg";
-      case "morning":
-        return "morning-bg";
-      case "sunrise":
-        return "sunrise-bg";
-      case "dawn":
-        return "dawn-bg";
+      case "void":
+        return "void-bg";
+      case "abyss":
+        return "abyss-bg";
+      case "storm":
+        return "storm-bg";
+      case "cloudy":
+        return "cloudy-bg";
+      case "melancholy":
+        return "melancholy-bg";
       default:
-        return "dark-bg";
+        return "happy-bg";
     }
   }, [visualStage]);
 
   // Determinar se deve mostrar elementos específicos
-  const showClouds = level >= 3;
-  const showFloatingEmojis = level >= 2;
+  const showClouds = level >= 2;
+  const showFloatingEmojis = true;
 
   // Calcular e aplicar ganhos offline na primeira carga
   useEffect(() => {
@@ -509,21 +509,22 @@ function App() {
         upgrades={upgrades}
         windowWidth={windowSize.width}
         windowHeight={windowSize.height}
+        visualStage={visualStage}
       />
 
       {/* Floating emojis (só aparecem após nível 2) */}
-      {showFloatingEmojis && <FloatingEmojis />}
+      {showFloatingEmojis && <FloatingEmojis visualStage={visualStage} />}
 
       {/* Nuvens decorativas (só aparecem após nível 3) */}
       {showClouds && (
         <>
           <motion.div
-            className={`${visualStage === "dark" || visualStage === "dawn" ? "cloud-dark" : "cloud"} absolute w-16 h-12 top-10 -left-20 opacity-80`}
+            className={`${visualStage === "storm" || visualStage === "abyss" || visualStage === "void" ? "cloud-dark" : "cloud"} absolute w-16 h-12 top-10 -left-20 opacity-80`}
             animate={{ x: [0, windowSize.width + 200] }}
             transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
           />
           <motion.div
-            className={`${visualStage === "dark" || visualStage === "dawn" ? "cloud-dark" : "cloud"} absolute w-12 h-8 top-24 -left-20 opacity-60`}
+            className={`${visualStage === "storm" || visualStage === "abyss" || visualStage === "void" ? "cloud-dark" : "cloud"} absolute w-12 h-8 top-24 -left-20 opacity-60`}
             animate={{ x: [0, windowSize.width + 200] }}
             transition={{
               duration: 45,
@@ -542,6 +543,7 @@ function App() {
           sunsPerSecond={sunsPerSecond}
           sunsPerClick={sunsPerClick}
           level={level}
+          visualStage={visualStage}
         />
 
         {/* Título principal - mais compacto */}
@@ -552,23 +554,42 @@ function App() {
           className="text-center"
         >
           <h1
-            className={`text-3xl sm:text-4xl md:text-5xl font-pacifico text-white ${visualStage === "dark" ? "text-dim" : "text-glow"}`}
+            className={`text-3xl sm:text-4xl md:text-5xl font-pacifico text-white ${visualStage === "void" || visualStage === "abyss" ? "text-dim" : "text-glow"}`}
           >
-            {visualStage === "dark" ? "Bom... Dia...?" : "Bom Dia,"}{" "}
+            {visualStage === "void"
+              ? "..."
+              : visualStage === "abyss"
+                ? "Boa... Noite...?"
+                : visualStage === "storm"
+                  ? "Bom... Dia...?"
+                  : "Bom Dia,"}{" "}
             <span
               className={
-                visualStage === "dark" ? "text-gray-400" : "text-yellow-300"
+                visualStage === "void" || visualStage === "abyss"
+                  ? "text-gray-500"
+                  : visualStage === "storm"
+                    ? "text-gray-300"
+                    : "text-yellow-300"
               }
             >
-              Jamie!
+              Jamie
+              {visualStage === "void"
+                ? "..."
+                : visualStage === "abyss"
+                  ? "?"
+                  : "!"}
             </span>{" "}
-            {visualStage === "dark"
-              ? "😴"
-              : visualStage === "dawn"
-                ? "🌅"
-                : visualStage === "radiant"
-                  ? "🌟"
-                  : "☀️"}
+            {visualStage === "happy"
+              ? "☀️"
+              : visualStage === "melancholy"
+                ? "😐"
+                : visualStage === "cloudy"
+                  ? "🌧️"
+                  : visualStage === "storm"
+                    ? "⛈️"
+                    : visualStage === "abyss"
+                      ? "💀"
+                      : "🕳️"}
           </h1>
         </motion.div>
 
@@ -578,10 +599,15 @@ function App() {
           level={level}
           currentXP={currentXP}
           xpForNextLevel={xpForNextLevel}
+          visualStage={visualStage}
         />
 
         {/* Mensagens engraçadas */}
-        <FunnyMessages clickCount={clickCount} level={level} />
+        <FunnyMessages
+          clickCount={clickCount}
+          level={level}
+          visualStage={visualStage}
+        />
 
         {/* Botão de saudação principal */}
         <motion.div
@@ -600,12 +626,16 @@ function App() {
                 exit={{ opacity: 0 }}
                 className={`absolute pointer-events-none font-bold whitespace-nowrap ${
                   ft.isLevelUp
-                    ? "text-pink-300 text-xl drop-shadow-lg"
-                    : "text-yellow-300 text-lg"
+                    ? visualStage === "void" || visualStage === "abyss"
+                      ? "text-red-500 text-xl drop-shadow-lg"
+                      : "text-blue-300 text-xl drop-shadow-lg"
+                    : visualStage === "void" || visualStage === "abyss"
+                      ? "text-red-400 text-lg"
+                      : "text-blue-300 text-lg"
                 }`}
                 style={{ left: ft.x, top: ft.y - 40 }}
               >
-                {ft.isLevelUp ? ft.value : `+${ft.value} ☀️`}
+                {ft.isLevelUp ? ft.value : `+${ft.value} 💧`}
               </motion.div>
             ))}
           </AnimatePresence>
@@ -613,31 +643,56 @@ function App() {
           <motion.button
             onClick={handleGreeting}
             className={`btn-fun text-white font-bold text-base sm:text-lg md:text-xl px-6 py-3 sm:px-8 sm:py-4 rounded-full shadow-2xl ${
-              visualStage === "dark"
-                ? "bg-gradient-to-r from-gray-600 to-gray-700"
-                : visualStage === "dawn"
-                  ? "bg-gradient-to-r from-purple-500 to-indigo-500"
-                  : visualStage === "radiant"
-                    ? "bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500"
-                    : "bg-gradient-to-r from-yellow-400 to-orange-500"
+              visualStage === "happy"
+                ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+                : visualStage === "melancholy"
+                  ? "bg-gradient-to-r from-blue-400 to-blue-600"
+                  : visualStage === "cloudy"
+                    ? "bg-gradient-to-r from-gray-400 to-gray-600"
+                    : visualStage === "storm"
+                      ? "bg-gradient-to-r from-gray-600 to-gray-800"
+                      : visualStage === "abyss"
+                        ? "bg-gradient-to-r from-purple-900 to-gray-900"
+                        : "bg-gradient-to-r from-black to-gray-900 border border-red-900"
             }`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            {visualStage === "dark" ? "💤" : "☀️"} Dar Bom Dia! (+{sunsPerClick}
-            ) {visualStage === "dark" ? "💤" : "☀️"}
+            {visualStage === "happy"
+              ? "☀️"
+              : visualStage === "void"
+                ? "💀"
+                : "💧"}
+            {visualStage === "void"
+              ? " Chorar... "
+              : visualStage === "abyss"
+                ? " Sofrer... "
+                : " Dar Bom Dia! "}
+            (+{sunsPerClick})
+            {visualStage === "happy"
+              ? " ☀️"
+              : visualStage === "void"
+                ? " 💀"
+                : " 💧"}
           </motion.button>
         </motion.div>
 
         {/* Loja de Upgrades */}
         <div className="mt-2">
-          <p className="text-center text-white/80 text-xs sm:text-sm mb-2">
-            🛒 Upgrades
+          <p
+            className={`text-center text-xs sm:text-sm mb-2 ${visualStage === "void" || visualStage === "abyss" ? "text-red-400/80" : "text-white/80"}`}
+          >
+            {visualStage === "void"
+              ? "💀 Desgraças"
+              : visualStage === "abyss"
+                ? "🕯️ Maldições"
+                : "🛒 Upgrades"}
           </p>
           <UpgradeShop
             upgrades={upgrades}
             suns={suns}
             onBuyUpgrade={handleBuyUpgrade}
+            visualStage={visualStage}
           />
         </div>
 
@@ -646,9 +701,15 @@ function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="text-center text-white/60 text-xs py-1"
+          className={`text-center text-xs py-1 ${visualStage === "void" ? "text-red-500/60" : "text-white/60"}`}
         >
-          <p>Feito com ❤️ para Jamie • {new Date().getFullYear()}</p>
+          <p>
+            {visualStage === "void"
+              ? "A escuridão consome tudo • ∞"
+              : visualStage === "abyss"
+                ? "Feito com 🖤 para Jamie • " + new Date().getFullYear()
+                : "Feito com ❤️ para Jamie • " + new Date().getFullYear()}
+          </p>
         </motion.footer>
       </div>
     </motion.div>

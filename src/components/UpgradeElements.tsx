@@ -6,6 +6,7 @@ interface UpgradeElementsProps {
   upgrades: Upgrade[];
   windowWidth: number;
   windowHeight: number;
+  visualStage?: "happy" | "melancholy" | "cloudy" | "storm" | "abyss" | "void";
 }
 
 // Gera posições pseudo-aleatórias mas consistentes baseadas no índice
@@ -20,7 +21,21 @@ const getAnimationDuration = (index: number, base: number) => {
   return base + (index % 5) * 0.5;
 };
 
-function UpgradeElements({ upgrades, windowWidth }: UpgradeElementsProps) {
+function UpgradeElements({
+  upgrades,
+  windowWidth,
+  visualStage = "happy",
+}: UpgradeElementsProps) {
+  // Opacidade base diminui conforme fica mais escuro
+  const baseOpacity =
+    visualStage === "void"
+      ? 0.3
+      : visualStage === "abyss"
+        ? 0.5
+        : visualStage === "storm"
+          ? 0.7
+          : 1;
+
   // Gerar elementos para cada upgrade
   const elements = useMemo(() => {
     const allElements: JSX.Element[] = [];
@@ -33,59 +48,72 @@ function UpgradeElements({ upgrades, windowWidth }: UpgradeElementsProps) {
 
         switch (upgrade.id) {
           case "coffee":
-            // Xícaras de café flutuando e soltando fumaça
+            // Café frio - xícaras tremendo de frio
             allElements.push(
               <motion.div
                 key={`coffee-${i}`}
                 className="absolute pointer-events-none text-2xl sm:text-3xl"
-                style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  opacity: baseOpacity,
+                  filter: visualStage === "void" ? "grayscale(0.8)" : "none",
+                }}
                 animate={{
-                  y: [0, -10, 0],
-                  rotate: [-5, 5, -5],
+                  x: [-2, 2, -2], // tremendo de frio
+                  rotate: [-3, 3, -3],
                 }}
                 transition={{
-                  duration: duration,
+                  duration: 0.2,
                   repeat: Infinity,
                   delay: delay,
                 }}
               >
-                ☕
+                🥶
                 <motion.span
                   className="absolute -top-2 left-1/2 text-sm opacity-50"
-                  animate={{ y: [0, -15], opacity: [0.5, 0] }}
+                  animate={{ y: [0, -10], opacity: [0.3, 0], scale: [1, 0.5] }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: delay }}
                 >
-                  💨
+                  ❄️
                 </motion.span>
               </motion.div>,
             );
             break;
 
           case "alarm":
-            // Despertadores tremendo e tocando
+            // Insônia - olhos cansados e Zs
             allElements.push(
               <motion.div
                 key={`alarm-${i}`}
                 className="absolute pointer-events-none text-2xl sm:text-3xl"
-                style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  opacity: baseOpacity,
+                }}
                 animate={{
-                  rotate: [-15, 15, -15],
-                  scale: [1, 1.1, 1],
+                  scale: [1, 0.9, 1],
+                  opacity: [baseOpacity, baseOpacity * 0.7, baseOpacity],
                 }}
                 transition={{
-                  duration: 0.3,
+                  duration: 2,
                   repeat: Infinity,
                   delay: delay,
                 }}
               >
-                ⏰
+                😵
                 {i % 3 === 0 && (
                   <motion.span
                     className="absolute -top-4 -right-2 text-xs"
-                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                    transition={{ duration: 0.5, repeat: Infinity }}
+                    animate={{
+                      y: [0, -15],
+                      opacity: [0.5, 0],
+                      rotate: [0, -20],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   >
-                    🔔
+                    💤
                   </motion.span>
                 )}
               </motion.div>,
@@ -93,50 +121,21 @@ function UpgradeElements({ upgrades, windowWidth }: UpgradeElementsProps) {
             break;
 
           case "breakfast":
-            // Croissants e pães flutuando
-            const breakfastEmojis = ["🥐", "🥯", "🥞", "🧇", "🍳", "🥖"];
+            // Pão mofado - alimentos estragados
+            const sadFoodEmojis = ["🍞", "🥀", "🍂", "🦠", "🪳", "🐛"];
             allElements.push(
               <motion.div
                 key={`breakfast-${i}`}
                 className="absolute pointer-events-none text-2xl sm:text-3xl"
-                style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                animate={{
-                  y: [0, -8, 0],
-                  rotate: [0, 10, -10, 0],
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  opacity: baseOpacity,
+                  filter: "hue-rotate(60deg) saturate(0.5)",
                 }}
-                transition={{
-                  duration: duration + 1,
-                  repeat: Infinity,
-                  delay: delay,
-                }}
-              >
-                {breakfastEmojis[i % breakfastEmojis.length]}
-              </motion.div>,
-            );
-            break;
-
-          case "music":
-            // Notas musicais dançando e flutuando
-            const musicEmojis = [
-              "🎵",
-              "🎶",
-              "🎼",
-              "🎹",
-              "🎸",
-              "🥁",
-              "🎺",
-              "🎷",
-            ];
-            allElements.push(
-              <motion.div
-                key={`music-${i}`}
-                className="absolute pointer-events-none text-xl sm:text-2xl"
-                style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                 animate={{
-                  y: [0, -20, 0],
-                  x: [0, 10, -10, 0],
-                  rotate: [0, 15, -15, 0],
-                  scale: [1, 1.2, 1],
+                  y: [0, 3, 0], // quase não se move, estático
+                  rotate: [0, 2, -2, 0],
                 }}
                 transition={{
                   duration: duration + 2,
@@ -144,26 +143,68 @@ function UpgradeElements({ upgrades, windowWidth }: UpgradeElementsProps) {
                   delay: delay,
                 }}
               >
-                {musicEmojis[i % musicEmojis.length]}
+                {sadFoodEmojis[i % sadFoodEmojis.length]}
+              </motion.div>,
+            );
+            break;
+
+          case "music":
+            // Playlist triste - notas musicais caindo
+            const sadMusicEmojis = [
+              "🎻",
+              "😢",
+              "💔",
+              "🎵",
+              "😭",
+              "🎶",
+              "💧",
+              "🥀",
+            ];
+            allElements.push(
+              <motion.div
+                key={`music-${i}`}
+                className="absolute pointer-events-none text-xl sm:text-2xl"
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  opacity: baseOpacity,
+                }}
+                animate={{
+                  y: [0, 20, 0], // caindo
+                  x: [0, -5, 5, 0],
+                  rotate: [0, -10, 10, 0],
+                  scale: [1, 0.9, 1],
+                }}
+                transition={{
+                  duration: duration + 3,
+                  repeat: Infinity,
+                  delay: delay,
+                }}
+              >
+                {sadMusicEmojis[i % sadMusicEmojis.length]}
               </motion.div>,
             );
             break;
 
           case "pet":
-            // Gatos andando pela tela
-            const petEmojis = ["🐱", "🐈", "😺", "😸", "🐈‍⬛", "😻", "🙀", "😹"];
+            // Gato preto - gatos sombrios pela tela
+            const darkCatEmojis = ["🐈‍⬛", "🖤", "👻", "🦇", "🕷️", "🐀"];
             const catY = 70 + (i % 3) * 10;
             allElements.push(
               <motion.div
                 key={`pet-${i}`}
                 className="absolute pointer-events-none text-3xl sm:text-4xl"
-                style={{ top: `${catY}%` }}
+                style={{
+                  top: `${catY}%`,
+                  opacity: baseOpacity,
+                  filter: visualStage === "void" ? "brightness(0.5)" : "none",
+                }}
                 initial={{ x: i % 2 === 0 ? -50 : windowWidth + 50 }}
                 animate={{
                   x: i % 2 === 0 ? windowWidth + 50 : -50,
                 }}
                 transition={{
-                  duration: 15 + (i % 10) * 2,
+                  duration: 20 + (i % 10) * 2, // mais lento
                   repeat: Infinity,
                   delay: i * 1.5,
                   ease: "linear",
@@ -174,114 +215,146 @@ function UpgradeElements({ upgrades, windowWidth }: UpgradeElementsProps) {
                     display: "inline-block",
                     transform: i % 2 === 0 ? "scaleX(1)" : "scaleX(-1)",
                   }}
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity }}
+                  animate={{
+                    y: [0, -3, 0],
+                    opacity: [baseOpacity, baseOpacity * 0.8, baseOpacity],
+                  }}
+                  transition={{ duration: 1, repeat: Infinity }}
                 >
-                  {petEmojis[i % petEmojis.length]}
+                  {darkCatEmojis[i % darkCatEmojis.length]}
                 </motion.span>
               </motion.div>,
             );
             break;
 
           case "sunshine":
-            // Arco-íris, sóis e elementos brilhantes
-            const sunEmojis = ["🌈", "☀️", "🌞", "⭐", "🌟", "💫", "✨", "🔆"];
+            // Escuridão - lua, nuvens escuras, sombras
+            const darkSkyEmojis = [
+              "🌑",
+              "🌚",
+              "☁️",
+              "🌫️",
+              "🌒",
+              "🌘",
+              "⬛",
+              "🖤",
+            ];
             allElements.push(
               <motion.div
                 key={`sunshine-${i}`}
                 className="absolute pointer-events-none text-3xl sm:text-4xl"
-                style={{ left: `${pos.x}%`, top: `${Math.min(pos.y, 40)}%` }}
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${Math.min(pos.y, 40)}%`,
+                  opacity: baseOpacity,
+                }}
                 animate={{
-                  scale: [1, 1.3, 1],
-                  rotate: [0, 360],
-                  filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"],
+                  scale: [1, 1.1, 1],
+                  opacity: [baseOpacity, baseOpacity * 0.5, baseOpacity],
+                  filter: [
+                    "brightness(0.8)",
+                    "brightness(0.5)",
+                    "brightness(0.8)",
+                  ],
                 }}
                 transition={{
-                  duration: duration + 3,
+                  duration: duration + 4,
                   repeat: Infinity,
                   delay: delay,
                 }}
               >
-                {sunEmojis[i % sunEmojis.length]}
+                {darkSkyEmojis[i % darkSkyEmojis.length]}
               </motion.div>,
             );
             break;
 
           case "secret":
-            // O Grande Mistério - efeito visual único e especial
+            // O Vazio Eterno - efeito visual de buraco negro
             allElements.push(
               <motion.div
                 key={`secret-${i}`}
                 className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center"
               >
-                {/* Diamante central gigante e brilhante */}
+                {/* Buraco negro central */}
                 <motion.div
-                  className="text-8xl sm:text-9xl drop-shadow-2xl"
+                  className="text-8xl sm:text-9xl"
+                  style={{
+                    filter: "drop-shadow(0 0 30px rgba(0,0,0,0.9))",
+                  }}
                   animate={{
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, -5, 0],
-                    filter: [
-                      "brightness(1) drop-shadow(0 0 20px #a855f7)",
-                      "brightness(1.5) drop-shadow(0 0 40px #ec4899)",
-                      "brightness(1.2) drop-shadow(0 0 30px #8b5cf6)",
-                      "brightness(1) drop-shadow(0 0 20px #a855f7)",
-                    ],
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 360],
                   }}
                   transition={{
-                    duration: 4,
+                    duration: 20,
                     repeat: Infinity,
-                    ease: "easeInOut",
+                    ease: "linear",
                   }}
                 >
-                  💎
+                  🕳️
                 </motion.div>
 
-                {/* Partículas de diamante girando ao redor */}
-                {Array.from({ length: 8 }).map((_, idx) => (
+                {/* Almas sendo sugadas para o buraco negro */}
+                {Array.from({ length: 12 }).map((_, idx) => (
                   <motion.div
                     key={`secret-particle-${idx}`}
                     className="absolute text-2xl sm:text-3xl"
-                    style={{
-                      transformOrigin: "center center",
+                    initial={{
+                      x: Math.cos((idx * Math.PI * 2) / 12) * 200,
+                      y: Math.sin((idx * Math.PI * 2) / 12) * 200,
+                      scale: 1,
+                      opacity: 1,
                     }}
                     animate={{
-                      rotate: [idx * 45, idx * 45 + 360],
-                      x: [
-                        Math.cos((idx * Math.PI) / 4) * 100,
-                        Math.cos((idx * Math.PI) / 4 + Math.PI * 2) * 100,
-                      ],
-                      y: [
-                        Math.sin((idx * Math.PI) / 4) * 100,
-                        Math.sin((idx * Math.PI) / 4 + Math.PI * 2) * 100,
-                      ],
-                      scale: [0.8, 1.2, 0.8],
-                      opacity: [0.6, 1, 0.6],
+                      x: 0,
+                      y: 0,
+                      scale: 0,
+                      opacity: 0,
+                      rotate: [0, 360],
                     }}
                     transition={{
-                      duration: 8,
+                      duration: 4,
                       repeat: Infinity,
-                      delay: idx * 0.2,
-                      ease: "linear",
+                      delay: idx * 0.3,
+                      ease: "easeIn",
                     }}
                   >
-                    {["💜", "💖", "✨", "⭐", "💫", "🌟", "💗", "💝"][idx]}
+                    {
+                      [
+                        "👻",
+                        "💀",
+                        "🖤",
+                        "😵",
+                        "👁️",
+                        "☠️",
+                        "🦴",
+                        "💔",
+                        "😱",
+                        "🕯️",
+                        "⚰️",
+                        "🪦",
+                      ][idx]
+                    }
                   </motion.div>
                 ))}
 
-                {/* Texto secreto que aparece e some */}
+                {/* Texto sombrio que aparece e some */}
                 <motion.div
-                  className="absolute bottom-20 text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400"
+                  className="absolute bottom-20 text-xl sm:text-2xl font-bold text-gray-500"
+                  style={{
+                    textShadow: "0 0 10px rgba(0,0,0,0.8)",
+                  }}
                   animate={{
-                    opacity: [0, 1, 1, 0],
+                    opacity: [0, 0.5, 0.5, 0],
                     y: [20, 0, 0, -20],
                   }}
                   transition={{
-                    duration: 4,
+                    duration: 6,
                     repeat: Infinity,
                     times: [0, 0.2, 0.8, 1],
                   }}
                 >
-                  ✨ O Grande Mistério foi revelado! ✨
+                  🕳️ O Vazio Eterno consome tudo... 🕳️
                 </motion.div>
               </motion.div>,
             );
@@ -291,7 +364,7 @@ function UpgradeElements({ upgrades, windowWidth }: UpgradeElementsProps) {
     });
 
     return allElements;
-  }, [upgrades, windowWidth]);
+  }, [upgrades, windowWidth, baseOpacity, visualStage]);
 
   return <>{elements}</>;
 }
