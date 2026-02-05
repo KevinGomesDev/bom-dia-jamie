@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Fredoka", sans-serif;
+  overflow: hidden;
+}
+
+.font-pacifico {
+  font-family: "Pacifico", cursive;
+}
+
+/* Fundo escuro inicial (dark mode) */
+.dark-bg {
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f0f23, #1a1a2e);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Transição para amanhecer */
+.dawn-bg {
+  background: linear-gradient(-45deg, #2d1b4e, #4a3f6b, #5c4d7d, #3d2d5c);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Transição para manhã */
+.morning-bg {
+  background: linear-gradient(-45deg, #ff9a56, #ffcd67, #ffa07a, #ffb347);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Gradiente animado de fundo (dia completo) */
+.gradient-bg {
+  background: linear-gradient(-45deg, #ff9a56, #ffcd67, #87ceeb, #98d8c8);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Fundo radiante (máximo) */
+.radiant-bg {
+  background: linear-gradient(
+    -45deg,
+    #ffd700,
+    #ffec8b,
+    #87ceeb,
+    #98fb98,
+    #ffb6c1
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 10s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Efeito de brilho no texto */
+.text-glow {
+  text-shadow:
+    0 0 10px rgba(255, 215, 0, 0.8),
+    0 0 20px rgba(255, 215, 0, 0.6),
+    0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+/* Texto sem brilho (dark mode) */
+.text-dim {
+  text-shadow: none;
+  opacity: 0.7;
+}
+
+/* Efeito de partículas flutuantes */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Nuvem estilizada */
+.cloud {
+  background: white;
+  border-radius: 50%;
+  box-shadow:
+    30px -10px 0 10px white,
+    60px 0 0 20px white,
+    90px -10px 0 10px white,
+    120px 0 0 -5px white;
+}
+
+/* Nuvem escura */
+.cloud-dark {
+  background: #374151;
+  border-radius: 50%;
+  box-shadow:
+    30px -10px 0 10px #374151,
+    60px 0 0 20px #374151,
+    90px -10px 0 10px #374151,
+    120px 0 0 -5px #374151;
+}
+
+/* Efeito hover nos botões */
+.btn-fun {
+  transition: all 0.3s ease;
+}
+
+.btn-fun:hover {
+  transform: scale(1.1) rotate(2deg);
+}
+
+.btn-fun:active {
+  transform: scale(0.95);
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
