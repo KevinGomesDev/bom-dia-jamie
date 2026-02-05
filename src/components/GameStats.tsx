@@ -5,6 +5,8 @@ interface GameStatsProps {
   sunsPerSecond: number;
   sunsPerClick: number;
   level: number;
+  prestigePoints?: number;
+  totalPrestiges?: number;
   visualStage?: "happy" | "melancholy" | "cloudy" | "storm" | "abyss" | "void";
 }
 
@@ -13,6 +15,8 @@ function GameStats({
   sunsPerSecond,
   sunsPerClick,
   level,
+  prestigePoints = 0,
+  totalPrestiges = 0,
   visualStage = "happy",
 }: GameStatsProps) {
   const formatNumber = (num: number, forceDecimals = false): string => {
@@ -229,6 +233,29 @@ function GameStats({
           </div>
         </div>
       </div>
+
+      {/* Prestígio - só mostra se já fez pelo menos 1 reset ou tem pontos */}
+      {(totalPrestiges > 0 || prestigePoints > 0) && (
+        <div className="bg-purple-600/60 backdrop-blur-md rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 border border-purple-400/50">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <motion.span
+              className="text-xl sm:text-2xl"
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              ⭐
+            </motion.span>
+            <div className="text-left">
+              <p className="text-white font-bold text-lg sm:text-xl leading-tight">
+                {prestigePoints}
+              </p>
+              <p className="text-purple-200 text-xs">
+                Prestígio {totalPrestiges > 0 && `(${totalPrestiges}x)`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

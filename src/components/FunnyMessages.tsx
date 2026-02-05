@@ -1,16 +1,33 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
 interface FunnyMessagesProps {
   clickCount: number;
-  level?: number;
   visualStage?: "happy" | "melancholy" | "cloudy" | "storm" | "abyss" | "void";
 }
 
 function FunnyMessages({
   clickCount,
-  level = 0,
   visualStage = "happy",
 }: FunnyMessagesProps) {
+  // Posição aleatória que muda a cada mensagem
+  const [position, setPosition] = useState({ x: 50, y: 20 });
+
+  // Gerar nova posição aleatória quando a mensagem muda
+  useEffect(() => {
+    // Posições seguras: não muito nas bordas, não no centro onde está o Jamie
+    const safeZones = [
+      { xMin: 5, xMax: 30, yMin: 10, yMax: 35 }, // Canto superior esquerdo
+      { xMin: 70, xMax: 95, yMin: 10, yMax: 35 }, // Canto superior direito
+      { xMin: 5, xMax: 25, yMin: 50, yMax: 70 }, // Lado esquerdo
+      { xMin: 75, xMax: 95, yMin: 50, yMax: 70 }, // Lado direito
+    ];
+    const zone = safeZones[Math.floor(Math.random() * safeZones.length)];
+    setPosition({
+      x: zone.xMin + Math.random() * (zone.xMax - zone.xMin),
+      y: zone.yMin + Math.random() * (zone.yMax - zone.yMin),
+    });
+  }, [clickCount]);
   // Mensagens que vão ficando cada vez mais tristes conforme o jogo progride
   const messagesByStage = {
     happy: [
@@ -140,27 +157,20 @@ function FunnyMessages({
   // Flag para saber se deve animar
   const shouldAnimate = visualStage === "void" || visualStage === "storm";
 
-  // Dicas progressivamente mais sombrias
-  const getTip = () => {
-    if (level >= 8) return "💀 Não há volta...";
-    if (level >= 6) return "🕯️ A luz está morrendo...";
-    if (level >= 4) return "⛈️ A tempestade só piora...";
-    if (level >= 2) return "☁️ As nuvens estão chegando...";
-    if (clickCount === 5) return "💡 Continue clicando... enquanto pode.";
-    return null;
-  };
-
-  const tip = getTip();
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={displayMessage}
-        initial={{ opacity: 0, y: 20, scale: 0.8 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -20, scale: 0.8 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="max-w-md mx-auto text-center"
+        key={`${displayMessage}-${position.x}-${position.y}`}
+        initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        exit={{ opacity: 0, scale: 0.5, rotate: 10 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="fixed pointer-events-none z-30"
+        style={{
+          left: `${position.x}%`,
+          top: `${position.y}%`,
+          transform: "translate(-50%, -50%)",
+        }}
       >
         <motion.div
           animate={
@@ -180,10 +190,10 @@ function FunnyMessages({
                 }
               : undefined
           }
-          className={`backdrop-blur-md rounded-2xl p-3 md:p-4 border ${styles.bg} ${styles.shadow}`}
+          className={`backdrop-blur-md rounded-2xl px-4 py-2 border ${styles.bg} ${styles.shadow}`}
         >
           <motion.p
-            className={`text-base sm:text-lg md:text-xl font-medium ${styles.text}`}
+            className={`text-sm sm:text-base font-medium whitespace-nowrap ${styles.text}`}
             animate={
               visualStage === "abyss" || visualStage === "void"
                 ? {
@@ -204,23 +214,6 @@ function FunnyMessages({
             {displayMessage}
           </motion.p>
         </motion.div>
-
-        {/* Dica que muda conforme o progresso */}
-        {tip && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={`text-xs mt-2 ${
-              level >= 6
-                ? "text-red-400/70"
-                : level >= 4
-                  ? "text-purple-300/70"
-                  : "text-white/70"
-            }`}
-          >
-            {tip}
-          </motion.p>
-        )}
       </motion.div>
     </AnimatePresence>
   );

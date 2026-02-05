@@ -6,6 +6,7 @@ import FloatingEmojis from "./components/FloatingEmojis";
 import FunnyMessages from "./components/FunnyMessages";
 import GameStats from "./components/GameStats";
 import UpgradeShop, { Upgrade } from "./components/UpgradeShop";
+import PrestigeShop, { PrestigeUpgrade } from "./components/PrestigeShop";
 import VisualElements from "./components/VisualElements";
 import UpgradeElements from "./components/UpgradeElements";
 
@@ -193,6 +194,98 @@ const INITIAL_UPGRADES: Upgrade[] = [
   },
 ];
 
+// Upgrades de Prestígio (permanentes)
+const INITIAL_PRESTIGE_UPGRADES: PrestigeUpgrade[] = [
+  {
+    id: "prestige_click_1",
+    name: "Toque Sombrio",
+    emoji: "👆",
+    description: "Multiplicador de clique +0.5x",
+    baseCost: 1,
+    costMultiplier: 2,
+    effect: "clickMultiplier",
+    effectValue: 0.5,
+    owned: 0,
+  },
+  {
+    id: "prestige_passive_1",
+    name: "Sussurros Noturnos",
+    emoji: "🌙",
+    description: "Multiplicador passivo +0.5x",
+    baseCost: 2,
+    costMultiplier: 2,
+    effect: "passiveMultiplier",
+    effectValue: 0.5,
+    owned: 0,
+  },
+  {
+    id: "prestige_click_2",
+    name: "Garra do Abismo",
+    emoji: "🦇",
+    description: "Multiplicador de clique +1.0x",
+    baseCost: 5,
+    costMultiplier: 2.5,
+    effect: "clickMultiplier",
+    effectValue: 1.0,
+    owned: 0,
+  },
+  {
+    id: "prestige_passive_2",
+    name: "Eco da Escuridão",
+    emoji: "🕯️",
+    description: "Multiplicador passivo +1.0x",
+    baseCost: 8,
+    costMultiplier: 2.5,
+    effect: "passiveMultiplier",
+    effectValue: 1.0,
+    owned: 0,
+  },
+  {
+    id: "prestige_xp_1",
+    name: "Sabedoria Antiga",
+    emoji: "📜",
+    description: "Multiplicador de XP +0.5x",
+    baseCost: 10,
+    costMultiplier: 3,
+    effect: "xpMultiplier",
+    effectValue: 0.5,
+    owned: 0,
+  },
+  {
+    id: "prestige_offline_1",
+    name: "Sonhos Lucrativos",
+    emoji: "😴",
+    description: "Multiplicador offline +0.5x",
+    baseCost: 15,
+    costMultiplier: 3,
+    effect: "offlineMultiplier",
+    effectValue: 0.5,
+    owned: 0,
+  },
+  {
+    id: "prestige_click_3",
+    name: "Fúria do Vazio",
+    emoji: "💀",
+    description: "Multiplicador de clique +2.5x",
+    baseCost: 25,
+    costMultiplier: 3,
+    effect: "clickMultiplier",
+    effectValue: 2.5,
+    owned: 0,
+  },
+  {
+    id: "prestige_passive_3",
+    name: "Poder Eterno",
+    emoji: "🔮",
+    description: "Multiplicador passivo +2.5x",
+    baseCost: 40,
+    costMultiplier: 3,
+    effect: "passiveMultiplier",
+    effectValue: 2.5,
+    owned: 0,
+  },
+];
+
 function App() {
   // Carregar save existente
   const savedGame = useMemo(() => loadGame(), []);
@@ -228,6 +321,26 @@ function App() {
     string | null
   >(null);
 
+  // Estados de Prestígio
+  const [activeTab, setActiveTab] = useState<"upgrades" | "prestige">(
+    "upgrades",
+  );
+  const [prestigePoints, setPrestigePoints] = useState(
+    savedGame?.prestigePoints ?? 0,
+  );
+  const [totalPrestiges, setTotalPrestiges] = useState(
+    savedGame?.totalPrestiges ?? 0,
+  );
+  const [prestigeUpgrades, setPrestigeUpgrades] = useState<PrestigeUpgrade[]>(
+    () => {
+      if (!savedGame?.prestigeUpgrades) return INITIAL_PRESTIGE_UPGRADES;
+      return INITIAL_PRESTIGE_UPGRADES.map((u) => {
+        const saved = savedGame.prestigeUpgrades?.find((s) => s.id === u.id);
+        return saved ? { ...u, owned: saved.owned } : u;
+      });
+    },
+  );
+
   // Ref para rastrear último tempo de save (para cálculo offline)
   const lastSaveTimeRef = useRef<number>(savedGame?.lastSaveTime ?? Date.now());
 
@@ -241,16 +354,40 @@ function App() {
     return Math.floor(5 + lvl * 3);
   };
 
-  // Calcular stats baseado nos upgrades
-  const sunsPerClick =
+  // Calcular multiplicadores de prestígio
+  const clickMultiplier =
+    1 +
+    prestigeUpgrades
+      .filter((u) => u.effect === "clickMultiplier")
+      .reduce((acc, u) => acc + u.effectValue * u.owned, 0);
+
+  const passiveMultiplier =
+    1 +
+    prestigeUpgrades
+      .filter((u) => u.effect === "passiveMultiplier")
+      .reduce((acc, u) => acc + u.effectValue * u.owned, 0);
+
+  const xpMultiplier =
+    1 +
+    prestigeUpgrades
+      .filter((u) => u.effect === "xpMultiplier")
+      .reduce((acc, u) => acc + u.effectValue * u.owned, 0);
+
+  // Calcular stats baseado nos upgrades (com multiplicadores de prestígio)
+  const baseClickPower =
     1 +
     upgrades
       .filter((u) => u.effect === "clickPower")
       .reduce((acc, u) => acc + u.effectValue * u.owned, 0);
+  const sunsPerClick = Math.floor(baseClickPower * clickMultiplier);
 
-  const sunsPerSecond = upgrades
+  const basePassive = upgrades
     .filter((u) => u.effect === "autoSuns")
     .reduce((acc, u) => acc + u.effectValue * u.owned, 0);
+  const sunsPerSecond = basePassive * passiveMultiplier;
+
+  // Calcular potencial de prestígio (sqrt de suns / 1M)
+  const potentialPrestigeGain = Math.floor(Math.sqrt(suns / 1000000));
 
   // Calcular total de upgrades comprados
   const totalUpgrades = upgrades.reduce((acc, u) => acc + u.owned, 0);
@@ -335,13 +472,29 @@ function App() {
         clickCount,
         upgrades: upgrades.map((u) => ({ id: u.id, owned: u.owned })),
         lastSaveTime: now,
+        prestigePoints,
+        prestigeUpgrades: prestigeUpgrades.map((u) => ({
+          id: u.id,
+          owned: u.owned,
+        })),
+        totalPrestiges,
       };
       saveGame(gameState);
       lastSaveTimeRef.current = now;
     }, 1000);
 
     return () => clearInterval(saveInterval);
-  }, [isLoaded, suns, level, currentXP, clickCount, upgrades]);
+  }, [
+    isLoaded,
+    suns,
+    level,
+    currentXP,
+    clickCount,
+    upgrades,
+    prestigePoints,
+    prestigeUpgrades,
+    totalPrestiges,
+  ]);
 
   // Salvar ao fechar/sair da página
   useEffect(() => {
@@ -353,13 +506,28 @@ function App() {
         clickCount,
         upgrades: upgrades.map((u) => ({ id: u.id, owned: u.owned })),
         lastSaveTime: Date.now(),
+        prestigePoints,
+        prestigeUpgrades: prestigeUpgrades.map((u) => ({
+          id: u.id,
+          owned: u.owned,
+        })),
+        totalPrestiges,
       };
       saveGame(gameState);
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [suns, level, currentXP, clickCount, upgrades]);
+  }, [
+    suns,
+    level,
+    currentXP,
+    clickCount,
+    upgrades,
+    prestigePoints,
+    prestigeUpgrades,
+    totalPrestiges,
+  ]);
 
   // Detectar quando a aba fica visível/invisível e calcular ganhos
   useEffect(() => {
@@ -384,6 +552,12 @@ function App() {
           clickCount,
           upgrades: upgrades.map((u) => ({ id: u.id, owned: u.owned })),
           lastSaveTime: Date.now(),
+          prestigePoints,
+          prestigeUpgrades: prestigeUpgrades.map((u) => ({
+            id: u.id,
+            owned: u.owned,
+          })),
+          totalPrestiges,
         };
         saveGame(gameState);
         lastSaveTimeRef.current = Date.now();
@@ -393,7 +567,17 @@ function App() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [suns, level, currentXP, clickCount, upgrades, sunsPerSecond]);
+  }, [
+    suns,
+    level,
+    currentXP,
+    clickCount,
+    upgrades,
+    sunsPerSecond,
+    prestigePoints,
+    prestigeUpgrades,
+    totalPrestiges,
+  ]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -449,7 +633,8 @@ function App() {
 
       // Sistema de XP e Level Up - usar função de atualização para garantir consistência
       setCurrentXP((prevXP) => {
-        const newXP = prevXP + 1;
+        const xpGain = Math.floor(1 * xpMultiplier);
+        const newXP = prevXP + xpGain;
         if (newXP >= xpForNextLevel) {
           // Level Up! - agendar atualizações para evitar conflitos
           const reward = getLevelUpReward(level + 1);
@@ -481,7 +666,7 @@ function App() {
         return newXP;
       });
     },
-    [sunsPerClick, xpForNextLevel, level],
+    [sunsPerClick, xpForNextLevel, level, xpMultiplier],
   );
 
   const handleBuyUpgrade = useCallback(
@@ -524,6 +709,61 @@ function App() {
       });
     },
     [upgrades],
+  );
+
+  // Função para fazer prestígio
+  const handlePrestige = useCallback(() => {
+    if (potentialPrestigeGain < 1) return;
+
+    // Ganhar pontos de prestígio
+    setPrestigePoints((prev) => prev + potentialPrestigeGain);
+    setTotalPrestiges((prev) => prev + 1);
+
+    // Reset do progresso normal
+    setSuns(0);
+    setLevel(0);
+    setCurrentXP(0);
+    setClickCount(0);
+    setUpgrades(INITIAL_UPGRADES.map((u) => ({ ...u, owned: 0 })));
+
+    // Mostrar confetti
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+  }, [potentialPrestigeGain]);
+
+  // Função para comprar upgrade de prestígio
+  const handleBuyPrestigeUpgrade = useCallback(
+    (upgradeId: string) => {
+      setPrestigePoints((currentPoints) => {
+        const upgrade = prestigeUpgrades.find((u) => u.id === upgradeId);
+        if (!upgrade) return currentPoints;
+
+        if (
+          upgrade.maxOwned !== undefined &&
+          upgrade.owned >= upgrade.maxOwned
+        ) {
+          return currentPoints;
+        }
+
+        const cost = Math.floor(
+          upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.owned),
+        );
+
+        if (currentPoints < cost || cost <= 0) return currentPoints;
+
+        const newPoints = currentPoints - cost;
+        if (newPoints < 0) return currentPoints;
+
+        setPrestigeUpgrades((prev) =>
+          prev.map((u) =>
+            u.id === upgradeId ? { ...u, owned: u.owned + 1 } : u,
+          ),
+        );
+
+        return newPoints;
+      });
+    },
+    [prestigeUpgrades],
   );
 
   return (
@@ -603,6 +843,8 @@ function App() {
           sunsPerSecond={sunsPerSecond}
           sunsPerClick={sunsPerClick}
           level={level}
+          prestigePoints={prestigePoints}
+          totalPrestiges={totalPrestiges}
           visualStage={visualStage}
         />
 
@@ -663,11 +905,7 @@ function App() {
         />
 
         {/* Mensagens engraçadas */}
-        <FunnyMessages
-          clickCount={clickCount}
-          level={level}
-          visualStage={visualStage}
-        />
+        <FunnyMessages clickCount={clickCount} visualStage={visualStage} />
 
         {/* Textos flutuantes de ganho - posição fixa na tela */}
         <AnimatePresence>
@@ -726,23 +964,80 @@ function App() {
           </p>
         </motion.div>
 
-        {/* Loja de Upgrades */}
+        {/* Tabs de Upgrades e Prestígio */}
         <div className="mt-2">
-          <p
-            className={`text-center text-xs sm:text-sm mb-2 ${visualStage === "void" || visualStage === "abyss" ? "text-red-400/80" : "text-white/80"}`}
-          >
-            {visualStage === "void"
-              ? "💀 Desgraças"
-              : visualStage === "abyss"
-                ? "🕯️ Maldições"
-                : "🛒 Upgrades"}
-          </p>
-          <UpgradeShop
-            upgrades={upgrades}
-            suns={suns}
-            onBuyUpgrade={handleBuyUpgrade}
-            visualStage={visualStage}
-          />
+          {/* Tabs */}
+          <div className="flex justify-center gap-2 mb-2">
+            <button
+              onClick={() => setActiveTab("upgrades")}
+              className={`px-4 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === "upgrades"
+                  ? visualStage === "void" || visualStage === "abyss"
+                    ? "bg-red-900/80 text-white"
+                    : "bg-yellow-500/80 text-white"
+                  : "bg-white/20 text-white/70 hover:bg-white/30"
+              }`}
+            >
+              {visualStage === "void"
+                ? "💀 Desgraças"
+                : visualStage === "abyss"
+                  ? "🕯️ Maldições"
+                  : "🛒 Upgrades"}
+            </button>
+            <button
+              onClick={() => setActiveTab("prestige")}
+              className={`px-4 py-1 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === "prestige"
+                  ? "bg-purple-600/80 text-white"
+                  : "bg-white/20 text-white/70 hover:bg-white/30"
+              }`}
+            >
+              ⭐ Prestígio
+              {prestigePoints > 0 && (
+                <span className="ml-1 bg-purple-400 text-white px-1.5 py-0.5 rounded-full text-xs">
+                  {prestigePoints}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Conteúdo da tab ativa com animação */}
+          <AnimatePresence mode="wait">
+            {activeTab === "upgrades" ? (
+              <motion.div
+                key="upgrades"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <UpgradeShop
+                  upgrades={upgrades}
+                  suns={suns}
+                  onBuyUpgrade={handleBuyUpgrade}
+                  visualStage={visualStage}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="prestige"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <PrestigeShop
+                  prestigePoints={prestigePoints}
+                  prestigeUpgrades={prestigeUpgrades}
+                  potentialPrestigeGain={potentialPrestigeGain}
+                  totalPrestiges={totalPrestiges}
+                  onPrestige={handlePrestige}
+                  onBuyPrestigeUpgrade={handleBuyPrestigeUpgrade}
+                  visualStage={visualStage}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Footer compacto */}
